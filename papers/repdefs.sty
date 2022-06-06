@@ -1,0 +1,1171 @@
+%  repdefs.sty
+%  report style file like that for CGT book on Trust Region Methods
+%  this version: 11 5 2001
+
+% keep all subscripts and superscripts at the same height
+
+\usepackage{subdepth}
+
+% Include the graphicx package: check if we are compiling under latex or pdflatex
+
+%\ifx\pdftexversion\undefined
+%  \usepackage[dvips]{graphicx}
+%\else
+%  \usepackage[pdftex]{graphicx}
+%\fi
+
+% Formatting instructions
+
+%\textwidth  13.2cm
+%\textheight 21.5cm
+%\oddsidemargin -0.2mm
+%\evensidemargin 2.8cm
+%\def\baselinestretch{1.2}
+
+\textwidth  16.17cm
+\textheight 23.4cm
+\oddsidemargin -0.2mm
+\evensidemargin -0.2mm
+\def\baselinestretch{1.1}
+
+\topmargin -8.4mm
+\renewcommand{\textfraction}{0.05}
+
+% Unit length for figures
+
+\setlength{\unitlength}{1mm}
+
+% Nice graphics for a horizontal line
+
+\newcommand{\divider}{%
+  \addtolength{\fboxsep}{-0.5mm}
+  \centerline{\fbox{\rule{131mm}{0.25mm}}}
+  \addtolength{\fboxsep}{0.5mm}
+}
+
+%  Modifications to standard book style to get correct spacings
+%  in tables of contents as well as headers for chapter/part pages
+
+% Float instructions
+
+\setcounter{topnumber}{10}
+\newcommand{\defaulttopfraction}{1.0}
+\renewcommand{\topfraction}{\defaulttopfraction}
+\setcounter{bottomnumber}{10}
+\newcommand{\defaultbottomfraction}{1.0}
+\renewcommand{\bottomfraction}{\defaultbottomfraction}
+
+% TEMPORARY PAGE NUMBERING (by chapter)
+
+%\newcommand{\pagenumbers}{\arabic{chapter}-\arabic{page}}
+%\newcommand{\lchapter}[1]{\chapter{#1} \setcounter{page}{1}}
+%\newcommand{\lpart}[1]{\setcounter{page}{1} \part{#1}}
+
+% sequential page numbering
+
+\newcommand{\pagenumbers}{\arabic{page}}
+\newcommand{\lchapter}[1]{\chapter{#1}}
+\newcommand{\lpart}[1]{\part{#1}}
+
+\renewcommand{\thepage}{\pagenumbers}
+
+% Section numbering
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{2}
+
+% Centered equation arrays
+
+\def\ceqnarray{%
+   \stepcounter{equation}%
+   \def\@currentlabel{\p@equation\theequation}%
+   \global\@eqnswtrue
+   \m@th
+   \global\@eqcnt\z@
+   \tabskip\@centering
+   \let\\\@eqncr
+   $$\everycr{}\halign to\displaywidth\bgroup
+       \hskip\@centering\hfil$\displaystyle\tabskip\z@skip{##}$\hfil\@eqnsel
+      &\global\@eqcnt\@ne\hskip \tw@\arraycolsep \hfil${##}$\hfil
+      &\global\@eqcnt\tw@ \hskip \tw@\arraycolsep
+         $\displaystyle\hfil{##}$\hfil\tabskip\@centering
+      &\global\@eqcnt\thr@@ \hb@xt@\z@\bgroup\hss##\egroup
+         \tabskip\z@skip
+      \cr
+}
+\def\endceqnarray{%
+      \@@eqncr
+      \egroup
+      \global\advance\c@equation\m@ne
+   $$\@ignoretrue
+}
+
+\@namedef{ceqnarray*}{\def\@eqncr{\nonumber\@seqncr}\ceqnarray}
+\@namedef{endceqnarray*}{\nonumber\endceqnarray}
+
+%\newcommand{\subeqnarray}[2]{\begin{subequations}\label{#1}\begin{eqnarray}
+%#2\end{eqnarray}\end{subequations}}
+
+%\newcommand{\subceqnarray}[2]{\begin{subequations}\label{#1}\begin{ceqnarray}
+%#2\end{ceqnarray}\end{subequations}}
+
+\newcommand{\subceqnarrays}[2]{\begin{subequations}\label{#1}\begin{ceqnarray*}
+#2\end{ceqnarray*}\end{subequations}}
+
+% Equations, tables and figures numbered by chapter and section
+
+\renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+\renewcommand{\thetable}{\arabic{section}.\arabic{table}}
+\renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+
+% Section headers with labels and counters reset to zero
+% syntax: \lsection{label}, \lsubsection{label}, \lsubsubsection{label}
+
+\newcommand{\resetcounters}{\setcounter{equation}{0} \setcounter{figure}{0}
+ \setcounter{table}{0}}
+\newcommand{\lsection}[1]{\section{#1} \resetcounters \label{#1}}
+\newcommand{\lsubsection}[1]{\subsection{#1} \label{#1}}
+\newcommand{\lsubsubsection}[1]{\subsubsection{#1} \label{#1}}
+\newcommand{\numsection}[1]{\section{#1}\resetcounters}
+\newcommand{\numsubsection}[1]{\subsection{#1}\resetcounters}
+\newcommand{\bracketsection}[1]{\section{[#1]}\resetcounters}
+
+% Begin and end equation with a label
+% syntax: \beqn{label} ... \eeqn
+
+\newcommand{\beqn}[1]{\begin{equation}\label{#1}}
+\newcommand{\eeqn}{\end{equation}}
+
+% Equation with and without a label
+% syntax: \eqn{label}{equation}
+%         \disp{label}{equation}
+
+\newcommand{\eqn}[2]{\begin{equation}\label{#1}{#2}\end{equation}}
+\newcommand{\disp}[1]{\[{#1}\]}
+\newcommand{\eqna}[1]{{\begin{eqnarray}#1\end{eqnarray}}}
+\newcommand{\subeqn}[2]{{\begin{subeqnarray}\label{#1}#2\end{subeqnarray}}}
+
+% Matrix with and without round brackets
+% syntax: \mat{column format}{rows}
+%         \arr{column format}{rows}
+
+\newcommand{\vect}[1]{\left(\begin{array}{c}#1\end{array}\right)}
+\newcommand{\mat}[2]{\left(\begin{array}{#1}#2\end{array}\right)}
+\newcommand{\matinv}[2]{\left(\begin{array}{#1}#2\end{array}\right)^{-1}}
+\newcommand{\arr}[2]{\begin{array}{#1}#2\end{array}}
+\newcommand{\arrb}[2]{\begin{array}[b]{#1}#2\end{array}}
+\newcommand{\arrt}[2]{\begin{array}[t]{#1}#2\end{array}}
+
+% shorthand for itemize, etc
+
+\newcommand{\ite}[1]{\begin{itemize}{#1}\end{itemize}}
+\newcommand{\enu}[1]{\begin{enumerate}{#1}\end{enumerate}}
+\newcommand{\des}[1]{\begin{description}{#1}\end{description}}
+
+% Put a reference with brackets
+% syntax: \req{reference}
+
+\newcommand{\req}[1]{(\ref{#1})}
+\newcommand{\reqa}[1]{(\ref{#1}a)}
+\newcommand{\reqb}[1]{(\ref{#1}b)}
+\newcommand{\reqc}[1]{(\ref{#1}c)}
+\newcommand{\reqd}[1]{(\ref{#1}d)}
+\newcommand{\reqe}[1]{(\ref{#1}e)}
+
+% References with page number
+
+%\newcommand{\distref}[1]{, page~\pageref{#1}}
+\newcommand{\distref}[1]{ [p.~\pageref{#1}]}
+\newcommand{\preq}[1]{\req{#1}\distref{#1}}
+\newcommand{\pref}[1]{\ref{#1}\distref{#1}}
+\newcommand{\prea}[1]{\rea{#1}\distref{ass-#1}}
+
+% Proofs
+
+\newcommand{\bpr}{{\bf Proof.} \hspace{1.5mm}}
+\newcommand{\epr}{\hfill $\Box$ \vspace*{1em}}
+
+\newcommand{\proof}[1]{
+\begin{list}{}{
+\setlength{\topsep}{0.0pt}
+\setlength{\partopsep}{0.0pt}
+\setlength{\leftmargin}{0.025\textwidth}
+\setlength{\rightmargin}{0.5\leftmargin}
+\setlength{\labelwidth}{0.5\leftmargin}
+\setlength{\labelsep}{0.25\leftmargin}}
+\item \bpr #1 \epr \noindent
+\end{list}}
+
+\newcommand{\bprof}[1]{{\bf Proof of {#1}.} \hspace{1.5mm}}
+\newcommand{\proofof}[2]{
+\begin{list}{}{
+\setlength{\topsep}{0.0pt}
+\setlength{\partopsep}{0.0pt}
+\setlength{\leftmargin}{0.025\textwidth}
+\setlength{\rightmargin}{0.5\leftmargin}
+\setlength{\labelwidth}{0.5\leftmargin}
+\setlength{\labelsep}{0.25\leftmargin}}
+\item \bprof{#1} #2 \epr \noindent
+\end{list}}
+
+% Figures
+
+\newcommand{\psfigure}[2]{\begin{figure}[htbp]
+\centerline{\psfig{#1,silent=}} \caption{#2} \end{figure}}
+
+\newcommand{\fig}[2]{\begin{figure}[htbp]
+\begin{center} {#1} \caption{#2} \end{center} \end{figure}}
+
+% Begin and end a quote (with or without label)
+% syntax: \bqa{label} ... \eq or \bq ... \eq
+
+\newcommand{\bqa}[1]{\begin{quote} \label{#1} \small \begin{verbatim}}
+\newcommand{\bq}{\begin{quote} \small \begin{verbatim}}
+\newcommand{\eq}{\end{quote}}
+
+% A reasonable space between two mathematical symbols
+% syntax: \ms
+
+\newcommand{\ms}{\;\;\;\;}
+
+% Put text within an equation with a big, medium or small space around the text
+% syntax: \rim{text}, \tim{text} or \sam{text
+
+\newcommand{\rim}[1]{\;\;\; \mbox{#1} \;\;\;}
+\newcommand{\tim}[1]{\;\; \mbox{#1} \;\;}
+\newcommand{\fim}[1]{\;\; \mbox{#1} \;\;}
+\newcommand{\sam}[1]{\; \mbox{#1} \;}
+
+% Begin and end table mode with a label and caption
+% syntax: \bctb{label} ... \ecftable{caption}
+
+\newcommand{\bctb}[1]{\begin{table}[hbtp]
+                         \begin{center}
+                         \begin{tabular}{#1} }
+\newcommand{\bctable}[1]{\begin{table}[htbp]
+                         \begin{center}
+                         \begin{tabular}{#1} }
+\newcommand{\ectable}[1]{\end{tabular}
+                         \caption{#1}
+                         \end{center}
+                         \end{table}}
+\newcommand{\bcftable}[1]{\begin{figure}[htbp]
+                          \begin{center}
+                          \begin{tabular}{#1} }
+\newcommand{\ecftable}[1]{\end{tabular}
+                          \caption{#1}
+                          \end{center}
+                          \end{figure} }
+
+
+% Redefine Theorem environment to get that pesky . after the number!
+
+\def\newtheorem#1{\@ifnextchar[{\@othm{#1}}{\@nthm{#1}}}
+
+\def\@nthm#1#2{%
+\@ifnextchar[{\@xnthm{#1}{#2}}{\@ynthm{#1}{#2}}}
+
+\def\@xnthm#1#2[#3]{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}\@addtoreset{#1}{#3}%
+\expandafter\xdef\csname the#1\endcsname{\expandafter\noexpand
+  \csname the#3\endcsname \@thmcountersep \@thmcounter{#1}}%
+\global\@namedef{#1}{\@thm{#1}{#2}}\global\@namedef{end#1}{\@endtheorem}}}
+
+\def\@ynthm#1#2{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}%
+\expandafter\xdef\csname the#1\endcsname{\@thmcounter{#1}}%
+\global\@namedef{#1}{\@thm{#1}{#2}}\global\@namedef{end#1}{\@endtheorem}}}
+
+%% RmS 92/01/10: check for existence of theorem environment #2
+\def\@othm#1[#2]#3{%
+  \@ifundefined{c@#2}{\@latexerr{No theorem environment `#2' defined}\@eha}%
+  {\expandafter\@ifdefinable\csname #1\endcsname
+  {\global\@namedef{the#1}{\@nameuse{the#2}}%
+\global\@namedef{#1}{\@thm{#2}{#3}}%
+\global\@namedef{end#1}{\@endtheorem}}}}
+
+\def\@thm#1#2{\refstepcounter
+    {#1}\@ifnextchar[{\@ythm{#1}{#2}}{\@xthm{#1}{#2}}}
+
+\def\@xthm#1#2{\@begintheorem{#2}{\csname the#1\endcsname}\ignorespaces}
+\def\@ythm#1#2[#3]{\@opargbegintheorem{#2}{\csname
+       the#1\endcsname}{#3}\ignorespaces}
+
+%DEFAULT VALUES
+\def\@thmcounter#1{\noexpand\arabic{#1}}
+\def\@thmcountersep{.}
+%deleted September 2, 1986 MDK
+%\def\@makethmnumber#1#2{\bf #1 #2:}
+
+%% RmS 91/08/14 Moved \it after \item to make it work with NFSS
+\def\@begintheorem#1#2{\trivlist \item[\hskip \labelsep{\bf #1\ #2.}]\it}
+\def\@opargbegintheorem#1#2#3{\trivlist
+      \item[\hskip \labelsep{\bf #1\ #2\ (#3).}]\it}
+\def\@endtheorem{\endtrivlist}
+
+% Theorem-like environments
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{algorithm}{Algorithm}[section]
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}[section]
+\renewcommand{\theexample}{\arabic{section}.\arabic{example}}
+\newcommand{\lex}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{example} \label{#1} \rm #2 \end{example} } } \vspace{\baselineskip} }
+
+% Theorem-like definitions
+% 1) single box environment
+
+\newcommand{\lem}[1]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{lemma} \rm #1 \end{lemma} } } \vspace{\baselineskip} }
+
+\newcommand{\llem}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{lemma} \label{#1} \rm #2 \end{lemma} } } \vspace{\baselineskip} }
+
+\newcommand{\thm}[1]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{theorem} \rm #1 \end{theorem} } } \vspace{\baselineskip} }
+
+\newcommand{\lthm}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{theorem} \label{#1} \rm #2 \end{theorem} } } \vspace{\baselineskip} }
+
+\newcommand{\cor}[1]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{corollary} \rm #1 \end{corollary} } } \vspace{\baselineskip} }
+
+\newcommand{\lcor}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{corollary} \label{#1} \rm #2 \end{corollary} } } \vspace{\baselineskip} }
+
+\newcommand{\prop}[1]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{proposition} \rm #1 \end{proposition} } } \vspace{\baselineskip} }
+
+\newcommand{\lprop}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{proposition} \label{#1} \rm #2 \end{proposition} } } \vspace{\baselineskip} }
+
+% Coloured theorem-like definitions
+
+\newcommand{\thmcolour}{chocolate4}
+\newcounter{colourtheorem}
+\newtheorem{colourtheorem}{\textcolor{\thmcolour}{Theorem}}[section]
+\newtheorem{colourcorollary}[colourtheorem]{\textcolor{\thmcolour}{Corollary}}
+\newtheorem{colourlemma}[colourtheorem]{\textcolor{\thmcolour}{Lemma}}
+
+\renewcommand{\thecolourtheorem}{\textcolor{\thmcolour}{\arabic{lecture}.\arabic{colourtheorem}}}
+
+\newcommand{\clem}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{colourlemma} \label{#1} \rm #2 \end{colourlemma} } }
+\vspace{\baselineskip} }
+
+\newcommand{\cthm}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{colourtheorem} \label{#1} \rm #2 \end{colourtheorem} } }
+\vspace{\baselineskip} }
+
+\newcommand{\ccor}[2]{\vspace{\baselineskip}
+\noindent\framebox[\textwidth]{\parbox{0.95\textwidth}{
+\begin{colourcorollary} \label{#1} \rm #2 \end{colourcorollary} } }
+\vspace{\baselineskip} }
+
+% 2) split boxes environments
+
+\newlength{\thmw}
+\setlength{\thmw}{\textwidth}
+\addtolength{\thmw}{-6\fboxsep}
+\addtolength{\thmw}{-2\fboxrule}
+
+\newcommand{\blem}[2]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{lemma}{\rm #1}\end{lemma}\vspace{-\lastskip}}\hspace{\fboxsep}}%
+  \kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #2}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\lblem}[3]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{lemma}\label{#1}{\rm #2}\end{lemma}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #3}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\bthm}[2]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{theorem}{\rm #1}\end{theorem}\vspace{-\lastskip}}\hspace{\fboxsep}}%
+  \kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #2}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\lbthm}[3]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{theorem}\label{#1}{\rm #2}\end{theorem}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #3}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\bcor}[2]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{corollary}{\rm #1}\end{corollary}\vspace{-\lastskip}}\hspace{\fboxsep}}%
+  \kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #2}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\lbcor}[3]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{corollary}\label{#1}{\rm #2}\end{corollary}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #3}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\bprop}[2]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+ \begin{proposition}{\rm #1}\end{proposition}\vspace{-\lastskip}}\hspace{\fboxsep}}%
+  \kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #2}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\lbprop}[3]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{proposition}\label{#1}{\rm #2}\end{proposition}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #3}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\lbex}[3]{\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\fboxsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{
+  \begin{example}\label{#1}{\rm #2}\end{example}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #3}\hspace{\fboxsep}
+  \vspace{4\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+% Define Assumption environment
+
+\def\newassumption#1{\@ifnextchar[{\@oassm{#1}}{\@nassm{#1}}}
+
+\def\@nassm#1#2{%
+\@ifnextchar[{\@xnassm{#1}{#2}}{\@ynassm{#1}{#2}}}
+
+\def\@xnassm#1#2[#3]{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}\@addtoreset{#1}{#3}%
+\expandafter\xdef\csname the#1\endcsname{\expandafter\noexpand
+  \csname the#3\endcsname \@assmcountersep \@assmcounter{#1}}%
+\global\@namedef{#1}{\@assm{#1}{#2}}\global\@namedef{end#1}{\@endassumption}}}
+
+\def\@ynassm#1#2{\expandafter\@ifdefinable\csname #1\endcsname
+{\@definecounter{#1}%
+\expandafter\xdef\csname the#1\endcsname{\@assmcounter{#1}}%
+\global\@namedef{#1}{\@assm{#1}{#2}}\global\@namedef{end#1}{\@endassumption}}}
+
+%% RmS 92/01/10: check for existence of assumption environment #2
+\def\@oassm#1[#2]#3{%
+  \@ifundefined{c@#2}{\@latexerr{No assumption environment `#2' defined}\@eha}%
+  {\expandafter\@ifdefinable\csname #1\endcsname
+  {\global\@namedef{the#1}{\@nameuse{the#2}}%
+\global\@namedef{#1}{\@assm{#2}{#3}}%
+\global\@namedef{end#1}{\@endassumption}}}}
+
+\def\@assm#1#2{\refstepcounter
+    {#1}\@ifnextchar[{\@yassm{#1}{#2}}{\@xassm{#1}{#2}}}
+
+\def\@xassm#1#2{\@beginassumption{#2}{\csname the#1\endcsname}\ignorespaces}
+\def\@yassm#1#2[#3]{\@opargbeginassumption{#2}{\csname
+       the#1\endcsname}{#3}\ignorespaces}
+
+%DEFAULT VALUES
+\def\@assmcounter#1{\noexpand\arabic{#1}}
+\def\@assmcountersep{.}
+%deleted September 2, 1986 MDK
+%\def\@makeassmnumber#1#2{\bf #1 #2:}
+
+\newlength{\asslength}
+\setlength{\asslength}{1.5cm}
+\newlength{\asstextlength}
+\setlength{\asstextlength}{\textwidth}
+\addtolength{\asstextlength}{-1.2\asslength}
+
+\def\@beginassumption#1#2{\hspace*{-4mm}%
+ \framebox[\asslength]{\bf #1#2}}
+\def\@opargbeginassumption#1#2#3{\hspace*{-4mm}%
+ \framebox[\asslength]{\bf #1#2(#3)}\hspace*{-1mm}}
+\def\@endassumption{}
+
+\newassumption{assumption}{}
+\renewcommand{\theassumption}{A\arabic{assumption}}
+
+\newcommand{\asspace}{\vspace{\baselineskip}}
+
+\newcommand{\ass}[2]{
+
+\begin{assumption} \label{#1} \end{assumption}
+{\parbox[t]{\asstextlength}{\rm #2}}
+
+}
+
+% Old assumptions and their cross-references
+
+\newcommand{\assold}[2]{\label{ass-#1}
+                     \begin{list}{}{\setlength{\leftmargin}{2 cm}}
+                     \item \hspace{-1.9cm} \framebox[1.5cm]{\bf #1} #2
+                     \end{list} }
+\newcommand{\assoldd}[1]{\noindent
+                      \framebox[1.5cm]{\bf #1} [p.~\pageref{ass-#1}]:}
+\newcommand{\rea}[1]{#1}
+
+% Algorithms
+
+\newcounter{algo}[section]
+\renewcommand{\thealgo}{\thesection.\arabic{algo}}
+\newcommand{\algo}[3]{\refstepcounter{algo}
+\begin{center}\begin{figure}[htb]
+\framebox[\textwidth]{
+\parbox{0.95\textwidth} {\vspace{\topsep}
+{\bf Algorithm \thealgo : #2}\label{#1}\\
+\vspace*{-\topsep} \mbox{ }\\
+{#3} \vspace{\topsep} }}
+\end{figure}\end{center}}
+
+\newcommand{\balgo}[4]{\refstepcounter{algo}
+\begin{center}\begin{figure}[htb]
+\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\topsep} \noindent\hspace{2\fboxsep}\parbox{\thmw}{\vspace{0.5\topsep}
+  {\bf Algorithm \thealgo : #2}\label{#1}\\
+  \vspace*{-\topsep} \mbox{ }\\
+  {\rm #3}\vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}
+\end{figure}\end{center}
+\newpage \hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\rm #4}\hspace{\fboxsep}
+  \vspace{\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\topalgo}[3]{\refstepcounter{algo}
+\begin{center}\begin{figure}[htbf]
+\vspace{\baselineskip}\noindent\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hrule\hbox{\vrule \kern-\fboxrule \vbox{%
+  \vspace{\topsep}
+  \noindent\hspace{2\fboxsep}\parbox[t]{\thmw}{\vspace{0.5\topsep}
+  {\bf Algorithm \thealgo : #2}\label{#1}\\
+  \vspace*{-\topsep} \mbox{ }\\
+  {\rm #3 \vfill \mbox{ } } \vspace{-\lastskip}}
+  \hspace{\fboxsep}}\kern-\fboxrule \vrule }}}}
+\end{figure}\end{center}
+}
+
+\newcommand{\botalgo}[1]{
+\hbox{%
+  \lower\fboxrule\hbox{\vbox{\hbox{\vrule \kern-\fboxrule \vbox{%
+  \noindent\hspace{2\fboxsep}\parbox{\thmw}{\vspace*{\topsep}
+  \rm #1}\hspace{\fboxsep}
+  \vspace{\fboxsep}}\kern-\fboxrule \vrule }\hrule }}}\vspace{\baselineskip}
+}
+
+\newcommand{\falgo}[3]{\refstepcounter{algo}
+\begin{center}\begin{figure}[f]
+\framebox[\textwidth]{
+\parbox{0.95\textwidth} {\vspace{\topsep}
+{\bf Algorithm \thealgo : #2}\label{#1}\\
+\vspace*{-\topsep} \mbox{ }\\
+{#3} \vspace{\topsep} }}
+\end{figure}\end{center}}
+
+% Enumeration indices
+
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\theenumi.}
+\renewcommand{\theenumii}{\theenumi\alph{enumii}}
+\renewcommand{\labelenumii}{\theenumii.}
+\renewcommand{\theenumiii}{\roman{enumiii}}
+\renewcommand{\labelenumiii}{\theenumiii.}
+\renewcommand{\theenumiv}{\theenumii(\roman{enumiii}\alph{enumiv})}
+\renewcommand{\labelenumiv}{\theenumiv.}
+
+% Calligraphic letters
+% syntax: \cal[A-Z,a-z]
+
+\newcommand{\calA}{{\cal A}} \newcommand{\calB}{{\cal B}}
+\newcommand{\calC}{{\cal C}} \newcommand{\calD}{{\cal D}}
+\newcommand{\calE}{{\cal E}} \newcommand{\calF}{{\cal F}}
+\newcommand{\calG}{{\cal G}} \newcommand{\calH}{{\cal H}}
+\newcommand{\calI}{{\cal I}} \newcommand{\calJ}{{\cal J}}
+\newcommand{\calK}{{\cal K}} \newcommand{\calL}{{\cal L}}
+\newcommand{\calM}{{\cal M}} \newcommand{\calN}{{\cal N}}
+\newcommand{\calO}{{\cal O}} \newcommand{\calP}{{\cal P}}
+\newcommand{\calQ}{{\cal Q}} \newcommand{\calR}{{\cal R}}
+\newcommand{\calS}{{\cal S}} \newcommand{\calT}{{\cal T}}
+\newcommand{\calU}{{\cal U}} \newcommand{\calV}{{\cal V}}
+\newcommand{\calW}{{\cal W}} \newcommand{\calX}{{\cal X}}
+\newcommand{\calY}{{\cal Y}} \newcommand{\calZ}{{\cal Z}}
+
+\newcommand{\blambdastar}{\stackrel{*}{\blambda}}
+\newcommand{\bfxstar}{\stackrel{*}{\bfx}}
+\newcommand{\bfrstar}{\stackrel{*}{\bfr}}
+
+% Overlined math
+% syntax: \bar[A-Z,a-z]
+
+\newcommand{\bara}{\overline{a}} \newcommand{\barb}{\overline{b}}
+\newcommand{\barc}{\overline{c}} \newcommand{\bard}{\overline{d}}
+\newcommand{\bare}{\overline{e}} \newcommand{\barf}{\overline{f}}
+\newcommand{\barg}{\overline{g}} \newcommand{\barh}{\overline{h}}
+\newcommand{\bari}{\overline{\imath}} \newcommand{\barj}{\overline{\jmath}}
+\newcommand{\bark}{\overline{k}} \newcommand{\barl}{\overline{l}}
+\newcommand{\barm}{\overline{m}} \newcommand{\barn}{\overline{n}}
+\newcommand{\baro}{\overline{o}} \newcommand{\barp}{\overline{p}}
+\newcommand{\barq}{\overline{q}} \newcommand{\barr}{\overline{r}}
+\newcommand{\bars}{\overline{s}} \newcommand{\bart}{\overline{t}}
+\newcommand{\baru}{\overline{u}} \newcommand{\barv}{\overline{v}}
+\newcommand{\barw}{\overline{w}} \newcommand{\barx}{\overline{x}}
+\newcommand{\bary}{\overline{y}} \newcommand{\barz}{\overline{z}}
+
+\newcommand{\barA}{\overline{A}} \newcommand{\barB}{\overline{B}}
+\newcommand{\barC}{\overline{C}} \newcommand{\barD}{\overline{D}}
+\newcommand{\barE}{\overline{E}} \newcommand{\barF}{\overline{F}}
+\newcommand{\barG}{\overline{G}} \newcommand{\barH}{\overline{H}}
+\newcommand{\barI}{\overline{I}} \newcommand{\barJ}{\overline{J}}
+\newcommand{\barK}{\overline{K}} \newcommand{\barL}{\overline{L}}
+\newcommand{\barM}{\overline{M}} \newcommand{\barN}{\overline{N}}
+\newcommand{\barO}{\overline{O}} \newcommand{\barP}{\overline{P}}
+\newcommand{\barQ}{\overline{Q}} \newcommand{\barR}{\overline{R}}
+\newcommand{\barS}{\overline{S}} \newcommand{\barT}{\overline{T}}
+\newcommand{\barU}{\overline{U}} \newcommand{\barV}{\overline{V}}
+\newcommand{\barW}{\overline{W}} \newcommand{\barX}{\overline{X}}
+\newcommand{\barY}{\overline{Y}} \newcommand{\barZ}{\overline{Z}}
+
+\newcommand{\gambar}{\overline{\gamma}}
+
+% Hatted math
+% syntax: \hat[A-Z,a-z]
+
+\newcommand{\hata}{\hat{a}} \newcommand{\hatb}{\hat{b}}
+\newcommand{\hatc}{\hat{c}} \newcommand{\hatd}{\hat{d}}
+\newcommand{\hate}{\hat{e}} \newcommand{\hatf}{\hat{f}}
+\newcommand{\hatg}{\hat{g}} \newcommand{\hath}{\hat{h}}
+\newcommand{\hati}{\hat{\imath}} \newcommand{\hatj}{\hat{\jmath}}
+\newcommand{\hatk}{\hat{k}} \newcommand{\hatl}{\hat{l}}
+\newcommand{\hatm}{\hat{m}} \newcommand{\hatn}{\hat{n}}
+\newcommand{\hato}{\hat{o}} \newcommand{\hatp}{\hat{p}}
+\newcommand{\hatq}{\hat{q}} \newcommand{\hatr}{\hat{r}}
+\newcommand{\hats}{\hat{s}} \newcommand{\hatt}{\hat{t}}
+\newcommand{\hatu}{\hat{u}} \newcommand{\hatv}{\hat{v}}
+\newcommand{\hatw}{\hat{w}} \newcommand{\hatx}{\hat{x}}
+\newcommand{\haty}{\hat{y}} \newcommand{\hatz}{\hat{z}}
+
+\newcommand{\hatA}{\hat{A}} \newcommand{\hatB}{\hat{B}}
+\newcommand{\hatC}{\hat{C}} \newcommand{\hatD}{\hat{D}}
+\newcommand{\hatE}{\hat{E}} \newcommand{\hatF}{\hat{F}}
+\newcommand{\hatG}{\hat{G}} \newcommand{\hatH}{\widehat{H}}
+\newcommand{\hatI}{\hat{I}} \newcommand{\hatJ}{\hat{J}}
+\newcommand{\hatK}{\hat{K}} \newcommand{\hatL}{\hat{L}}
+\newcommand{\hatM}{\hat{M}} \newcommand{\hatN}{\hat{N}}
+\newcommand{\hatO}{\hat{O}} \newcommand{\hatP}{\hat{P}}
+\newcommand{\hatQ}{\hat{Q}} \newcommand{\hatR}{\hat{R}}
+\newcommand{\hatS}{\hat{S}} \newcommand{\hatT}{\hat{T}}
+\newcommand{\hatU}{\hat{U}} \newcommand{\hatV}{\hat{V}}
+\newcommand{\hatW}{\hat{W}} \newcommand{\hatX}{\hat{X}}
+\newcommand{\hatY}{\hat{Y}} \newcommand{\hatZ}{\hat{Z}}
+
+% Common mathematical symbols
+
+\newcommand{\Co}{\hbox{I\hskip -7.5pt C}\;}
+\renewcommand{\Re}{\hbox{I\hskip -1.5pt R}}
+%\newcommand{\R}[1]{\Re^{{#1}}}
+\newcommand{\Na}{\hbox{I\hskip -1.5pt N}}
+\newcommand{\smallRe}
+     {\mbox{\raisebox{-0.8pt}{\footnotesize I\hskip -1.5pt R\hskip -0.5pt}}}
+\newcommand{\tinyRe}
+     {\mbox{\raisebox{-0.8pt}{\scriptsize I\hskip -1.5pt R\hskip -0.5pt}}}
+
+% Fractions
+
+\newcommand{\sfrac}[2]{{\scriptstyle \frac{#1}{#2}}}
+
+\newcommand{\eighth}{\sfrac{1}{8}}
+\newcommand{\sixth}{\sfrac{1}{6}}
+\newcommand{\quarter}{\sfrac{1}{4}}
+\newcommand{\fourth}{\sfrac{1}{4}}
+\newcommand{\third}{\sfrac{1}{3}}
+\newcommand{\half}{\sfrac{1}{2}}
+\newcommand{\halfT}{\sfrac{T}{2}}
+\newcommand{\threequarters}{\sfrac{3}{4}}
+\newcommand{\twothirds}{\sfrac{2}{3}}
+\newcommand{\threehalves}{\sfrac{3}{2}}
+\newcommand{\fivehalves}{\sfrac{5}{2}}
+\newcommand{\fivesixths}{\sfrac{5}{6}}
+\newcommand{\tenth}{\sfrac{1}{10}}
+\newcommand{\twelth}{\sfrac{1}{12}}
+\newcommand{\twelfth}{\sfrac{1}{12}}
+\newcommand{\twentyforth}{\sfrac{1}{24}}
+\newcommand{\sixtieth}{\sfrac{1}{60}}
+\newcommand{\hundreth}{\sfrac{1}{100}}
+\newcommand{\fifth}{\sfrac{1}{5}}
+\newcommand{\ninth}{\sfrac{1}{9}}
+
+\newcommand{\bigfrac}[2]{\displaystyle\frac{#1}{#2}}
+
+% Minimize over x in n-space.
+
+\newcommand{\mininx}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{minimize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle x \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\maxinx}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{maximize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle x \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\mininy}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{minimize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle y \in \smallRe^m #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\maxiny}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{maximize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle y \in \smallRe^m #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\maxinxy}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{maximize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle (x,y) \in \smallRe^{n+m} #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\minin}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{minimize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\maxin}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{maximize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\minins}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{minimize} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle s \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+
+% arg min over x in n-space.
+
+\newcommand{\argmin}{\mbox{arg min}}
+
+\newcommand{\argmininx}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg min} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle x \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argmaxinx}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg max} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle x \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argmininy}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg min} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle y \in \smallRe^m #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argmaxinxy}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg max} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle (x,y) \in \smallRe^{n+m} #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argminin}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg min} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argmaxin}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg max} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle #1 $ }
+                     \end{array} \;} }
+
+\newcommand{\argminins}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{arg min} \vspace*{-1mm} \\
+                     \mbox{ $\scriptstyle s \in \smallRe^n #1 $ }
+                     \end{array} \;} }
+
+% Minimize or maximize in general
+
+\newcommand{\minimizeover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{minimize} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\minover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{min} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\maximizeover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{maximize} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\maxover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     \mbox{max} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\argminover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{r}
+                     \mbox{arg min} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\argmaxover}[1]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{r}
+                     \mbox{arg max} \vspace*{-1mm} \\ \mbox{$\scriptstyle #1 $}
+                     \end{array} } }
+
+\newcommand{\aminbover}[3]{ {\renewcommand{\arraystretch}{0.8}
+                    \begin{array}[t]{c}
+                     #1 \; \mbox{min} \; #2 \\ \mbox{$\scriptstyle #3 $}
+                    \end{array} } }
+
+\newcommand{\amaxbover}[3]{ {\renewcommand{\arraystretch}{0.8}
+                     \begin{array}[t]{c}
+                     #1 \; \mbox{max} \; #2 \\ \mbox{$\scriptstyle #3 $}
+                     \end{array} } }
+
+% Format for author references with index entry
+
+\newcommand{\icitea}[1]{\citeauthor{#1}\citeindex{#1}}
+\newcommand{\iciteaf}[1]{\citeauthor{#1}.\citeindex{#1}}
+\newcommand{\iciteac}[1]{\citeauthor{#1},\citeindex{#1}}
+\newcommand{\iciteas}[1]{\citeauthor{#1}'s\citeindex{#1}}
+
+% Format for references
+
+\newcommand{\citebb}[1]{\citeauthor{#1}\ (\citeyear{#1})}
+\newcommand{\citebbs}[1]{\citeauthor{#1}'s\ (\citeyear{#1})}
+\newcommand{\citebba}[1]{\citeauthor{#1}'\ (\citeyear{#1})}
+\newcommand{\bciteb}[1]{\citeauthor{#1}, \citeyear{#1}}
+\newcommand{\bcitebs}[1]{\citeauthor{#1}'s, \citeyear{#1}}
+\newcommand{\citeb}[1]{\citeauthor{#1}\ (\citeyear{#1}}
+\newcommand{\citet}[1]{\citeauthor{#1}, \citeyear{#1}}
+\newcommand{\cites}[1]{\citeauthor{#1}'s}
+\newcommand{\citeyearinbrackets}[1]{\citebb{#1}}
+\newcommand{\citewithinbrackets}[1]{\bciteb{#1}}
+
+% Format for references with index entry
+
+\newcommand{\icitebb}[1]{\citeauthor{#1}\ (\citeyear{#1})\citeindex{#1}}
+\newcommand{\icitebbs}[1]{\citeauthor{#1}'s\ (\citeyear{#1})\citeindex{#1}}
+\newcommand{\icitebba}[1]{\citeauthor{#1}'\ (\citeyear{#1})\citeindex{#1}}
+\newcommand{\ibciteb}[1]{\citeauthor{#1}, \citeyear{#1}\citeindex{#1}}
+\newcommand{\iciteb}[1]{\citeauthor{#1}\ (\citeyear{#1}\citeindex{#1}}
+\newcommand{\icitet}[1]{\citeauthor{#1}, \citeyear{#1}\citeindex{#1}}
+\newcommand{\icites}[1]{\citeauthor{#1}'s\citeindex{#1}}
+\newcommand{\iciteyearinbrackets}[1]{\icitebb{#1}}
+\newcommand{\icitewithinbrackets}[1]{\ibciteb{#1}}
+
+% Format for references with index entry and following comma
+
+\newcommand{\icitebbc}[1]{\citeauthor{#1}\ (\citeyear{#1}),\citeindex{#1}}
+\newcommand{\ibcitebc}[1]{\citeauthor{#1},\ \citeyear{#1},\citeindex{#1}}
+\newcommand{\icitebc}[1]{\citeauthor{#1}\ (\citeyear{#1},\citeindex{#1}}
+
+% Format for references with index entry and following full stop
+
+\newcommand{\icitebbf}[1]{\citeauthor{#1}\ (\citeyear{#1}).\citeindex{#1}}
+\newcommand{\ibcitebf}[1]{\citeauthor{#1}, \citeyear{#1}.\citeindex{#1}}
+
+% Format for references with index entry and following full bracket
+
+\newcommand{\ibcitebb}[1]{\citeauthor{#1}, \citeyear{#1})\citeindex{#1}}
+\newcommand{\ibcitebbf}[1]{\citeauthor{#1}, \citeyear{#1}).\citeindex{#1}}
+\newcommand{\ibcitebbc}[1]{\citeauthor{#1}, \citeyear{#1}),\citeindex{#1}}
+
+% Notation index stuff
+
+\newcommand{\notindexname}{Index of Notation}
+\newenvironment{thenotation}
+               {\if@twocolumn
+                  \@restonecolfalse
+                \else
+                  \@restonecoltrue
+                \fi
+                \columnseprule \z@
+                \columnsep 35\p@
+         \begin{multicols}{4}[\@makeschapterhead{\centerline{\notindexname}}]%
+                \@mkboth{\MakeUppercase\notindexname}%
+                        {\MakeUppercase\notindexname}%
+                \thispagestyle{empty}\parindent\z@
+                \parskip\z@ \@plus .3\p@\relax
+                \let\item\@idxitem}
+               {\end{multicols}}
+
+
+% Bibliography notes
+
+\newcommand{\bibpreamble}{}
+\newenvironment{thebookbibliography}[1]
+     {\chapter*{\centerline{\bibname}
+        \@mkboth{\MakeUppercase\bibname}{\MakeUppercase\bibname}}%
+      \bibpreamble
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+
+
+% Table of contents
+
+\def\tableofcontents{\@restonecolfalse
+  \if@twocolumn\@restonecoltrue\onecolumn\fi
+  \section*{\contentsname
+        \@mkboth{\uppercase{\contentsname}}{\uppercase{\contentsname}}}%
+  \@starttoc{toc}\if@restonecol\twocolumn\fi}
+
+%\def\tableofcontents{\@restonecolfalse
+%  \if@twocolumn\@restonecoltrue\onecolumn\fi
+%  \chapter*{\centerline{\contentsname}
+%        \@mkboth{\uppercase{\contentsname}}{\uppercase{\contentsname}}}%
+%  \@starttoc{toc}\if@restonecol\twocolumn\fi}
+
+
+% The index
+
+\def\theindex{\@restonecoltrue\if@twocolumn\@restonecolfalse\fi
+\columnseprule \z@
+\columnsep 35\p@\twocolumn[\@makeschapterhead{\centerline{\indexname}}]%
+    \@mkboth{\uppercase{\indexname}}{\uppercase{\indexname}}%
+    \thispagestyle{empty}\parindent\z@
+    \parskip\z@ plus .3\p@\relax\let\item\@idxitem}
+
+% Summary environment
+
+\def\summary{\list{}{\rightmargin 1.5mm \leftmargin 1.5mm}\item[]}
+\let\endsummary=\endlist
+
+% Indexing utilities
+
+%\newcommand{\bold}[1]{{\bf{#1}}}
+\newcommand{\ind}[1]{\index[default]{#1}}
+\newcommand{\indb}[1]{\index[default]{#1|bold}}
+\newcommand{\notindex}[1]{\index[notation]{#1}}
+\newcommand{\autindex}[1]{\index[authors]{#1}}
+%\newcommand{\indi}[1]{\index[default]{#1|textit}}
+%\newcommand{\sect}[1]{#1\raisebox{1pt}{$\scriptstyle+$}}
+%\newcommand{\sect}[1]{#1ff}
+%\newcommand{\sect}[1]{\raisebox{0.5pt}{[}#1\raisebox{0.5pt}{]}}
+\newcommand{\sect}[1]{\underline{#1}}
+\newcommand{\indi}[1]{\index[default]{#1|sect}}
+
+% Historical notes
+
+\newcommand{\notes}[1]
+  {\section*{Notes and References for Section \thesection}{\small #1}}
+\newcommand{\subnotes}[1]
+  {\subsection*{Notes and References for Subsection \thesubsection}{\small #1}}
+\newcommand{\subsubnotes}[1]
+  {\subsection*{Notes and References for Subsection \thesubsubsection}
+  {\small #1}}
+
+% Machine epsilon
+
+\newcommand{\epsmach}{\epsilon_{\mbox{\tiny M}}}
+
+% Misc other utilities
+
+\newcommand{\sx}{s}
+\newcommand{\sy}{s^y}
+\newcommand{\sn}{s^n}
+\newcommand{\snk}{s^n_k}
+\newcommand{\sny}{s^n_y}
+\newcommand{\sz}{\scriptsize}
+\newcommand{\itt}[1]{\item[\tt #1]}
+\newcommand{\eqdef}{\stackrel{\rm def}{=}}
+\newcommand{\define}{:=}
+\newcommand{\blackbox}{\vrule height 5pt width 5pt depth 0pt}
+\newcommand{\bigprod}{\displaystyle \prod}
+\newcommand{\bigsum}{\displaystyle \sum}
+\newcommand{\bigmin}{\displaystyle \min}
+\newcommand{\bigmax}{\displaystyle \max}
+\newcommand{\biglim}{\displaystyle \lim}
+\newcommand{\bigsup}{\displaystyle \sup}
+\newcommand{\bigint}{\displaystyle \int}
+\newcommand{\spanset}[1]{\mbox{span}\left\{ #1 \right\}}
+\newcommand{\smallspanset}[1]{\mbox{\small span}\left\{ #1 \right\}}
+\newcommand{\ip}[2]{\langle #1, #2 \rangle}
+\newcommand{\bip}[2]{\left\langle #1, #2 \right\rangle}
+\newcommand{\cvect}[1]{\left( \begin{array}{c} #1 \end{array} \right) }
+\newcommand{\lvect}[1]{\left( \begin{array}{l} #1 \end{array} \right) }
+\newcommand{\rvect}[1]{\left( \begin{array}{r} #1 \end{array} \right) }
+\newcommand{\matr}[2]{\left( \begin{array}{#1} #2 \end{array} \right) }
+\newcommand{\deter}[2]{\left| \begin{array}{#1} #2 \end{array} \right| }
+\newcommand{\tr}{{\rm tr}}
+%\newcommand{\mod}{{\rm mod}}
+\newcommand{\sgn}{{\rm sgn}}
+\newcommand{\sign}{{\rm sign}}
+\newcommand{\diag}{{\rm diag}}
+\newcommand{\spanof}{{\rm span}}
+\newcommand{\slimk}[1]{\lim_{\stackrel{k \rightarrow \infty}{k \in #1}}}
+\newcommand{\limk}{\lim_{k \rightarrow \infty}}
+\newcommand{\biglimk}{\displaystyle \lim_{k \rightarrow \infty}}
+\newcommand{\kap}[1]{\kappa_{\mbox{\tiny #1}}}
+\newcommand{\gam}[1]{\gamma_{\mbox{\tiny #1}}}
+\newcommand{\Del}[1]{\Delta_{\mbox{\tiny #1}}}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\s}[1]{^{\mbox{\protect\tiny #1}}}
+\newcommand{\strans}[1]{^{\mbox{\protect\tiny #1}\;T}}
+\newcommand{\sinvtrans}[1]{^{\mbox{\protect\tiny #1}\;-T}}
+\newcommand{\sub}[1]{_{\mbox{\protect\tiny #1}}}
+\newcommand{\subb}[2]{_{\mbox{\protect\tiny #1} {#2}}}
+\newcommand{\ii}[1]{\{1, \ldots, #1 \}}
+\newcommand{\deltaf}[1]{\delta \! f_{#1}}
+\newcommand{\deltam}[1]{\delta m_{#1}}
+\newcommand{\ri}[1]{{\rm ri}\{#1\}}
+\newcommand{\cl}[1]{{\rm cl}\{#1\}}
+\newcommand{\di}[1]{{\rm dist}(#1)}
+\newcommand{\dis}[2]{{\rm dist}_{{#1}}(#2)}
+\newcommand{\inte}[1]{{\rm int}\{#1\}}
+\newcommand{\halfmu}{\frac{1}{2 \mu}}
+\newcommand{\oneovermu}{\frac{1}{\mu}}
+\newcommand{\nusup}{\nu_{\mbox{\tiny max}}}
+\newcommand{\nuinf}{\nu_{\mbox{\tiny min}}}
+\newcommand{\Delmax}{\Delta_{\mbox{\tiny max}}}
+\newcommand{\pr}{^{\prime}}
+\newcommand{\co}{\mbox{co}}
+\newcommand{\st}{\mid}
+\newcommand{\triple}[3]{{#1},{#2},{#3}}
+\newcommand{\dual}{_{\mbox{\tiny D}}}
+\newcommand{\bigleft}[1]{\left#1\arr{c}{\\}\!\!\!\!\!\!}
+\newcommand{\bigright}[1]{\!\!\!\!\!\!\arr{c}{\\}\right#1}
+\newcommand{\bst}{\,\bigleft | \right.}
+\newcommand{\E}{_{\calE}}
+\newcommand{\I}{_{\calI}}
+\newcommand{\Ip}{^{\calI +}}
+\renewcommand{\Im}{^{\calI -}}
+\newcommand{\ex}{\epsilon_x}
+\newcommand{\ey}{\epsilon_y}
+\newcommand{\e}{\epsilon}
+\newcommand{\yc}{y\s{CS}}
+\newcommand{\soc}{s\s{CS}}
+\newcommand{\tx}{t}
+\newcommand{\tendsup}{\nearrow}
+\newcommand{\tendsdown}{\searrow}
+\newcommand{\xl}{x_{\ell}}
+\newcommand{\betamax}{\beta_{\scriptscriptstyle \max}}
+\newcommand{\sigmamax}{\sigma_{\scriptscriptstyle \max}}
+\newcommand{\cmax}{c_{\scriptscriptstyle \max}}
+\newcommand{\fmin}{f_{\scriptscriptstyle \min}}
+\newcommand{\nc}{n\s{C}}
+\newcommand{\px}{p}
+\newcommand{\In}{\mbox{In}}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\substackrel}[2]{_{\stackrel{\scriptstyle #1}{#2}}}
+\newcommand{\su}[1]{_{\mbox{\raisebox{-1.5pt}{$\scriptstyle #1$}}}}
+\newcommand{\suk}{\su{k}}
+\newcommand{\midleft}[1]{\left#1\rule[-0.12cm]{0cm}{0.24cm}}
+\newcommand{\strutt}{\rule[-.2cm]{0cm}{.4cm}}
+
+\newcommand{\newappendixname}{A}
+\newcommand{\newappendix}[1]{\renewcommand{\newappendixname}{{#1}}
+ \section*{Appendix \newappendixname}
+ \resetcounters
+ \renewcommand{\theequation}{\newappendixname.\arabic{equation}}
+ }
+
+\newcommand{\archdefs}{{\sf archdefs}}
+\newcommand{\sifdec}{{\sf SifDec}}
+\newcommand{\sifdecode}{{\sf SIFDecode}}
+\newcommand{\cute}{{\sf CUTE}}
+\newcommand{\cuter}{{\sf CUTEr}}
+\newcommand{\cuteor}{{\sf CUTE(r)}}
+\newcommand{\cutest}{{\sf CUTEst}}
+\newcommand{\lancelot}{{\sf LANCELOT}}
+\newcommand{\lancelota}{{\sf LANCELOT A}}
+\newcommand{\lancelotb}{{\sf LANCELOT B}}
+\newcommand{\galahad}{{\sf GALAHAD}}
+\newcommand{\superb}{{\sf SUPERB}}
+\newcommand{\gltr}{{\sf GLTR}}
+\newcommand{\qpa}{{\sf QPA}}
+\newcommand{\qpb}{{\sf QPB}}
+\newcommand{\mbyn}{m \times n}
+\newcommand{\nbyn}{n \times n}
+
+%\newcommand{\implies}{$\Longrightarrow$ \,}
+\newcommand{\notimplies}{$\not\Longrightarrow \;$}
+\newcommand{\ifandonlyif}{\, $\Longleftrightarrow$ \,}
+
+\newcommand{\wtilde}{{\mbox{\raisebox{-2.8pt}{\~{}}}}}
+
+\newcommand{\happy}{$\;\;\bigcirc \hskip -11.45pt {\scriptstyle \smile}
+\hskip -8pt \mbox{\raisebox{1.0mm}{$\cdot$}}
+\hskip -1pt \mbox{\raisebox{1.0mm}{$\cdot$}}\;\;$}
+\newcommand{\sad}{$\;\;\bigcirc \hskip -11.45pt {\scriptstyle \frown}
+\hskip -8pt \mbox{\raisebox{1.0mm}{$\cdot$}}
+\hskip -1pt \mbox{\raisebox{1.0mm}{$\cdot$}}\;\;$}
+
+\newcommand{\mycitetwo}[4]{[\citenum{#1},\,#2;\hspace{1mm}\citenum{#3},\,#4]}
+
+\newcommand{\ngap}{\hspace*{-2mm}}
+\newcommand{\gap}{\hspace*{2mm}}
+\newcommand{\bgap}{\hspace*{3mm}}
+
+\newcommand{\ignore}[1]{}

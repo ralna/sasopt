@@ -19,6 +19,7 @@
 
 \newcommand{\alphack}{\alpha\s{C}_k}
 \newcommand{\xck}{x\s{C}_k}
+\newcommand{\sck}{s\s{C}_k}
 \renewcommand{\half}{\frac{1}{2}}
 \newcommand{\tmin}{t_{\min}}
 
@@ -168,9 +169,12 @@ If
 stop with the approximate solution $x_* \define x_k$.
 
 \item[Step 2: Compute a Cauchy point.]
-Find a stepsize $\alphack>0$ that sufficiently reduces
-$f(P(x_k - \alpha g_k))$, and define the Cauchy point
-$\xck = P(x_k - \alphack g_k)$.
+Compute the Cauchy direction
+\eqn{cauchydir}{\sck = \argminover{s \in \smallRe^n} g_k^T s 
+\;\;\mbox{subject to} \;\; e^T s = 0 \;\; \mbox{and}\;\; s \geq - x_k,}
+the stepsize $\alphack>0$ that sufficiently reduces
+$f(P(x_k + \alpha \sck))$, and the Cauchy point
+$\xck = P(x_k + \alphack \sck)$.
 
 \item[Step 3: Improve on the Cauchy point.]
 If desired, compute an approximate solution $s_k$ to the
@@ -197,13 +201,26 @@ in the direction $v$ but bent so as to remain feasible with respect to
 $\Delta^n$. We consider this further in due course. We have not specified
 what ``approximate'' means here, but two possibilities are either to find
 the exact minimizer along the arc, or to find a point that gives
-``sufficient'' decrease.
+``sufficient'' decrease to guarantee convergence.
 
-Secondly, notice that Steps 3 and 4 are optional; the algorithm is
+Secondly, it is trivial to find the required Cauchy direction in 
+\req{cauchydir}. For the problem in question is clearly a linear
+program, and as the feasible set is bounded, its solution must occur 
+at a vertex, that is a point
+at which $n-1$ of the bounds $s \geq x_k$ are satisfied as equalities.
+Suppose that variable $i$ is the exception. Then
+\eqn{defs}{ s_j = - x_{j,k} \tim{for} j \neq i \tim{and} s_i = 1 - x_{i,k}}
+since $x_k \in \Delta^n$ and $e^T s = 0$. Hence, for this $s$, the objective
+\disp{g_k^T s = \sum_{j=1}^n g_{j,k} s_j = - \sum_{j=1}^n g_{j,k} x_{k,j} + g_{i,k}}
+using \req{defs}. The smallest value of $g_k^T s$ over all such vertices
+then occurs for the index (perhaps indices) for which $g_{i,k}$ is smallest,
+and we use such an $i$ with \req{defs} to define $\sck$.
+
+Thirdly, notice that Steps 3 and 4 are optional; the algorithm is
 guaranteed to converge without them, but almost always moving beyond the
 Cauchy point improves performance. From a theoretical perspective,
 the Cauchy point plays two roles, it guarantees convergence and in
-non-degenerate cases it also ultimately finds the optimal face on
+non-degenerate cases it also ultimately predicts the optimal face on
 the unit simplex. Once this happens, the exact solution
 $\xck + s_k$ from \req{eslls} will also be that of \req{slls},
 and $\alpha_k = 1$ will result from Step 4. Steps 3 and 4 might be skipped if,
@@ -330,7 +347,7 @@ and the vectors that join adjacent breakpoints as {\em segments}.
 
 Suppose that $v$ is such a breakpoint, and that $\calA \define \calA(v)$
 is as in \req{active-set}. Then the next segment $s$ is in the direction
-\disp{\argmin{} \half\|s-d\|^2 \;\mbox{subject to} \; e^T s = 0,
+\disp{\argmin{s \in \Re^n} \half\|s-d\|^2 \;\mbox{subject to} \; e^T s = 0
 \, \mbox{and}\; s_{\calA} = 0,}
 for which the necessary optimality conditions
 \disp{ s_{\calI} - d_{\calI} + \lambda e_{\calI} = 0,\;  e_{\calI}^T s_{\calI} = 0,

@@ -170,7 +170,7 @@ stop with the approximate solution $x_* \define x_k$.
 
 \item[Step 2: Compute a Cauchy point.]
 Compute the Cauchy direction
-\eqn{cauchydir}{\sck = \argminover{s \in \smallRe^n} g_k^T s 
+\eqn{cauchydir}{\sck = \argminover{s \in \tinyRe^n} g_k^T s 
 \;\;\mbox{subject to} \;\; e^T s = 0 \;\; \mbox{and}\;\; s \geq - x_k,}
 the stepsize $\alphack>0$ that sufficiently reduces
 $f(P(x_k + \alpha \sck))$, and the Cauchy point
@@ -179,7 +179,7 @@ $\xck = P(x_k + \alphack \sck)$.
 \item[Step 3: Improve on the Cauchy point.]
 If desired, compute an approximate solution $s_k$ to the
 {\em equality-constrained} linear least-squares problem
-\eqn{eslls}{\minimizeover{s \in \smallRe^n} \half \| A (\xck + s) - b\|^2
+\eqn{eslls}{\minimizeover{s \in \tinyRe^n} \half \| A (\xck + s) - b\|^2
 \; \mbox{subject to} \; e^T s = 0 \; \mbox{and} \; s_{\calA(\xck)} = 0.
 }
 Otherwise define the next iterate $x_{k+1} = \xck$ and go to Step 5.
@@ -236,7 +236,7 @@ to determine the ``free'' components $s_{\calI_k}$ of $s$, where
 $\calI_k = \calN \setminus \calA(\xck)$. That is, it only involves
 the ``free'' columns $ A_{\calI_k}$ of $A$. To solve a generic singly-constrained
 linear least-squares problem
-\eqn{sells}{\minimizeover{s \in \smallRe^n} m(s) \define
+\eqn{sells}{\minimizeover{s \in \tinyRe^n} m(s) \define
  \half \| A s - b \|^2 \; \mbox{subject to}\; e^T s = 0}
 at least two possibilities are available.
 
@@ -267,10 +267,24 @@ conjugate-gradient normal equation (CGNE) method may be applied so long
 as the preconditioning step respects the single linear constraint. That is,
 given a gradient $g_k$ of $m(s)$ at CGNE iterate $s_k$, the required slope
 $g_k^T v_k$ is computed to satisfy
-\disp{ \mat{cc}{ P & e \\ e^T & 0 } \vect{v_k \\ \mu_k} = \vect{g_k \\ 0}}
-for some suitable symmetric approximation $P$ to $A^T A$; this is a
-special case of the projected conjugate gradient method
-\cite{GoulHribNoce01:sisc} applied to \req{sells}.
+\eqn{pcg}{ \mat{cc}{ P & e \\ e^T & 0 } \vect{v_k \\ \mu_k} = \vect{g_k \\ 0}}
+for some suitable symmetric approximation $P$ to $A^T A$. 
+This is a special case of the projected conjugate gradient method
+\cite{GoulHribNoce01:sisc} applied to \req{sells}, and here as
+in \cite[\S5]{GoulHribNoce01:sisc} it is very important to perform at
+least one iterative refinement per solve \req{pcg} to ensure that the projected
+conjugate gradient iterates do not deviate significantly from the 
+manifold $e^T s_{\calI_k} = 0$. Of course the solution to \req{pcg} may be
+expressed formally as
+\disp{ v_k = P^{-1} g_k - \mu_k P^{-1} e, \;\;\mbox{where}\;\; \mu_k = 
+ \frac{e^T P^{-1} g_k}{e^T e}}
+which is useful if $P$ has a simple form, e.g., if $P$ is diagonal with
+$P = $ diag$(A^T A)$ being a common, often effective \cite{GoulScot17:toms}
+option. Constrained variants of other specialised iterative least-squares 
+methods such as LSQR \cite{PaigSaun82a:toms},
+LSMR \cite{FongSaun11:sisc} or LSLQ \cite{EstrOrbaSaun19:simaa}
+may be preferred. 
+
 
 \subsection{Projections onto the unit simplex and projection arcs}
 
@@ -282,6 +296,7 @@ The basic $O(n\log n)$ method for finding the projection $P(v)$ is due to
 \cite{HeldWolfCrow74:mp}, and has been improved over the
 years, see \cite{Cond16:mp,DaiChen22,BergFrie08:sisc} and the citations within.
 A typically efficient method is as follows:
+\newpage
 
 %% \algo{alg-proj-basic}{projection onto the unit simplex
 %% \cite{HeldWolfCrow74:mp}}{
@@ -332,7 +347,7 @@ largest entry $h$
 \noindent
 Such a method is based on satisfying the optimality conditions for the
 projection problem
-\disp{P(v) = \argminover{p \in \Delta^n} \half \| p - v\|^2}
+\disp{P(v) = \!\! \argminover{p \in \Delta^n} \half \| p - v\|^2}
 by the constructive finite iteration in Step 2.
 
 \subsubsection{Projection arcs}
@@ -347,14 +362,14 @@ and the vectors that join adjacent breakpoints as {\em segments}.
 
 Suppose that $v$ is such a breakpoint, and that $\calA \define \calA(v)$
 is as in \req{active-set}. Then the next segment $s$ is in the direction
-\disp{\argmin{s \in \Re^n} \half\|s-d\|^2 \;\mbox{subject to} \; e^T s = 0
-\, \mbox{and}\; s_{\calA} = 0,}
+\disp{\argminover{s \in \tinyRe^n} \half\|s-d\|^2 \;\mbox{subject to} \;
+ e^T s = 0 \; \mbox{and}\; s_{\calA} = 0,}
 for which the necessary optimality conditions
 \disp{ s_{\calI} - d_{\calI} + \lambda e_{\calI} = 0,\;  e_{\calI}^T s_{\calI} = 0,
 \, \mbox{and}\; s_{\calA} = 0}
 give that $s$ has components
 \eqn{s}{s_{\calI} = d_{\calI} - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}}e_{\calI}
- \;\tim{and}\; s_{\calA} = 0}
+ \;\;\mbox{and}\; s_{\calA} = 0}
 where $\calI \define \calN \setminus \calA$.
 
 Now suppose that at the next breakpoint $v^+$ variable $i$ reaches zero,
@@ -362,7 +377,7 @@ and thus that $\calI^+ = \calI \setminus \{i\}$. It then follows from \req{s}
 that the new segment $s^+$ emanating from $x^+$ satisfies
 \eqn{splus}{s^+_{\calI^+} = d_{\calI^+}
  - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}e_{\calI^+}
- \;\tim{and}\; s_{\calA^+} = 0.}
+\; \;\mbox{and}\; s_{\calA^+} = 0.}
 In particular, if $j \in \calI^+ \subset \calI$,  it follows from
 \req{s} and \req{splus} that
 \disp{s_j = d_j - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}} \;\mbox{and}\;

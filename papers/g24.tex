@@ -135,7 +135,12 @@ In this section we focus on the simplex-constrained linear least-squares
 problem
 \eqn{slls}{\minimizeover{x \in \Delta^n}
  f(x) \define \half \| A x - b \|^2,}
-where the $m$ by $n$ matrix $A$ and $m$ vector $b$ are given.
+where the $m$ by $n$ matrix $A$ and $m$ vector $b$ are given
+and $\|\cdot\|$ denotes the Euclidean ($\ell_2$) norm;
+extension to the weighted case in which the objective function is
+instead $\half \| A x - b \|^2 = \half (Ax-b)^T W (Ax-b)$ for some
+positive definite (diagonal) matrix $W$ is obvious, and although we
+give no details here, our software copes with this possibility.
 Let $P(v)$ be the projection of a given $v$ into the simplex $\Delta^n$;
 we will return shortly to see how this may be calculated. In addition, let
 \eqn{active-set}{\calA(v) \define \{ 1 \leq i \leq n \st P(v)_i = 0\}}

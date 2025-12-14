@@ -1,6 +1,6 @@
-% g24.tex
-% Started: May 23rd, 2022
-% This version: May 23rd, 2022
+% slls.tex
+% Copied from g24b.tex, December 14th, 2025
+% This version: December 14th, 2025
 
 \documentclass[12pt,twoside]{article}
 
@@ -8,6 +8,7 @@
 %\usepackage{/home/nimg/pCloudDrive/papers/repdefs}
 \usepackage{subdepth}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{hyperref}
 \hypersetup{
@@ -20,24 +21,32 @@
 \newcommand{\alphack}{\alpha\s{C}_k}
 \newcommand{\xck}{x\s{C}_k}
 \newcommand{\sck}{s\s{C}_k}
+\newcommand{\xs}{x\sub{S}}
+\newcommand{\ns}{n\sub{S}}
+\newcommand{\xsj}{x\sub{S}{}_j}
+\newcommand{\xsi}{x\sub{S}{}_i}
 \renewcommand{\half}{\frac{1}{2}}
 \newcommand{\tmin}{t_{\min}}
+\renewcommand{\emptyset}{\varnothing}
 
 \usepackage{subdepth}
 
 %\newcommand{\paperauthor}{Working note --- Nick et al.}
 %\newcommand{\paperauthor}{Working note --- Nick Gould}
-\newcommand{\paperauthor}{Working note RAL-NA-2023--2 --- Nicholas I.\ M.\ Gould}
+\newcommand{\paperauthor}{Working note RAL-NA-2026-1
+ --- Nick Gould and his merrie people}
 %\newcommand{\papertitle}{Optimization methods for small angle scattering}
-\newcommand{\papertitle}{Linear least-squares over the unit simplex}
-\date{14th March 2023}
+\newcommand{\papertitle}{Linear least-squares over unit 
+simplices\footnote{This is an expanded version of \cite{Goul23b}.}}
+%\date{10th November 2025}
+\date{\today}
 
 \title{\papertitle}
 \author{\paperauthor}
 
 \pagestyle{myheadings}
 %%\markboth{Draft version - not for circulation - \today}{Working Note --- Optimization for SAS\hfill}
-\markboth{Working Note RAL NA-2023-2 ---- Nicholas I.\ M.\ Gould}{Working Note RAL NA2023-2 --- Linear least-squares over the unit simplex\hfill}
+\markboth{Working Note RAL NA-2026-2 ---- Nick Gould et al.}{Working Note RAL NA2026-1 --- Linear least-squares over unit simplices\hfill}
 %\newcommand{\theabstract}{{%\small
 %Notes
 %}}
@@ -131,7 +140,10 @@ Compute the Cauchy direction
 the stepsize $\alphack>0$ that sufficiently reduces
 $f(P(x_k + \alpha \sck))$, and the Cauchy point
 $\xck = P(x_k + \alphack \sck)$.
-
+\end{description}
+}
+{
+\begin{description}
 \item[Step 3: Improve on the Cauchy point.]
 If desired, compute an approximate solution $s_k$ to the
 {\em equality-constrained} linear least-squares problem
@@ -139,10 +151,7 @@ If desired, compute an approximate solution $s_k$ to the
 \; \mbox{subject to} \; e^T s = 0 \; \mbox{and} \; s_{\calA(\xck)} = 0.
 }
 Otherwise define the next iterate $x_{k+1} = \xck$ and go to Step 5.
-\end{description}
-}
-{
-\begin{description}
+
 \item[Step 4: Find the next iterate.]
 Find a stepsize $\alpha_k>0$ that reduces
 $f(P(\xck + \alpha s_k))$, and define the next iterate
@@ -487,23 +496,27 @@ identical evaluation points $P(x+\alpha_k d)$.
 A related problem is the simplex-constrained quadratically-regularized
 linear least-squares problem
 \eqn{srlls}{\minimizeover{x \in \Delta^n}
- r(x) \define f(x) + \half \sigma \|x\|^2
- \equiv \half \| A x - b \|^2 + \half \sigma \|x\|^2 ,}
-for some weight $\sigma \geq 0$. Much of what we have said so far in Section
+ r(x) \define f(x) + \half \sigma \|x-\xs\|^2
+ \equiv \half \| A x - b \|^2 + \half \sigma \|x - \xs\|^2 ,}
+for some weight $\sigma \geq 0$ and shifts $\xs$. 
+Much of what we have said so far in Section
 \ref{section-slls} holds with minor modification---such as replacing
-$g_k$ by $A^T r_k + \sigma x_k$, adding the term $\half \sigma \|\xck +s\|^2$ to
+$g_k$ by $A^T r_k + \sigma (x_k-\xs)$, adding the term 
+$\half \sigma \|\xck +s-\xs\|^2$ to
 the objective in \req{eslls}, and adding/subtracting the term $\sigma I$ from
 appropriaate blocks of the systems on p.4---and the only detail we
 address is how the regularized objective function
 \disp{r(P(x+\alpha d)) = \half \| A P(x+\alpha d) -b\|^2
-+ \half \sigma\|P(x+\alpha d)\|^2} evolves as $\alpha$ increases. We thus
-focus on the term $\|v + t s\|^2$ on the segment $s$ emanating
++ \half \sigma\|P(x+\alpha d)-\xs\|^2} evolves as $\alpha$ increases. We thus
+focus on the term $\|v + t s - \xs\|^2$ on the segment $s$ emanating
 from the breakpoint $v$, at which components indexed by $\calI$ are free,
-as $t \geq 0$ increases. Since
-\disp{\|v + ts\|^2 = \rho + 2 t \rho^{\prime}
+as $t \geq 0$ increases. 
+%\newpage
+Since
+\disp{\|v -\xs + ts\|^2 = \rho + 2 t \rho^{\prime}
   + t^2 \rho^{\prime\prime}, \;\;\mbox{where}\;\;
-\rho \define ||v||^2, \;
-\rho^{\prime} \define v^T s
+\rho \define ||v-\xs||^2, \;
+\rho^{\prime} \define (v-\xs) ^T s
 \;\mbox{and}\;
 \rho^{\prime\prime} \define ||s||^2,}
 we need to examine how $\rho$ and its derivatives behave along successive
@@ -527,26 +540,33 @@ which follow directly from \req{gammai} and \req{vplus}. Thus
   + \gamma_i^2 |\calI^+|
  = \rho^{\prime\prime} - s_i^2 - 2 \gamma_i s_i + \gamma_i^2 |\calI^+| \\
  & = \rho^{\prime\prime} - s_i^2 - \gamma_i s_i}}
-using \req{vssum} and \req{gammat}. Likewise
+using \req{vssum} and \req{gammat}. Likewise, defining 
+\eqn{xi}{\xi \define \bigsum_{j \in \calI} \xsj \tim{and}
+ \xi^+ = \bigsum_{j \in \calI^+} \xsj = \xi - \xsi,}
+we have  
 \eqn{rhop}{\arr{rl}{{\rho^{\prime}}^+ \ngap &
-= \bigsum_{j \in \calI^+} ( s_j + \gamma_i )( v_j + t_i s_j)
-= \bigsum_{j \in \calI^+} s_j v_j + t_i \bigsum_{j \in \calI^+} s_j^2
- + \gamma_i \bigsum_{j \in \calI^+} v_j + \gamma_i  t_i \bigsum_{j \in \calI^+} s_j \\
-& = \bigsum_{j \in \calI+} s_j v_j - s_i v_i
- + t_i \left( \bigsum_{j \in \calI} s_j^2 - s_i^2 \right)
- + \gamma_i ( 1 - v_i ) - \gamma_i  t_i s_i \\
-& = \rho^{\prime} + t_i \rho^{\prime\prime} - s_i ( v_i + t_i s_i )
- + \gamma_i - \gamma_i ( v_i + t_i s_i ) \\
+= \bigsum_{j \in \calI^+} ( s_j + \gamma_i )( v_j -\xsj + t_i s_j) \\
+& = \bigsum_{j \in \calI^+} s_j ( v_j -\xsj )+ t_i \bigsum_{j \in \calI^+} s_j^2
+ + \gamma_i \bigsum_{j \in \calI^+} (v_j-\xsj) 
+ + \gamma_i  t_i \bigsum_{j \in \calI^+} s_j \\
+& = \bigsum_{j \in \calI} s_j ( v_j -\xsj ) - s_i ( v_i - \xsi)
+ + t_i \left( \bigsum_{j \in \calI} s_j^2 - s_i^2 \right) \\
+& \hspace*{5mm} + \gamma_i ( 1 - ( v_i - \xsi) ) 
+ - \gamma_i \bigsum_{j \in \calI} \xsj - \gamma_i  t_i s_i \\
+& = \rho^{\prime} + t_i \rho^{\prime\prime} - s_i ( v_i - \xsi + t_i s_i )
+ + \gamma_i - \gamma_i ( v_i - \xsi + t_i s_i ) 
+ - \gamma_i \bigsum_{j \in \calI} \xsj\\
 & = \rho^{\prime} + t_i \rho^{\prime\prime} + \gamma_i
+ - \gamma_i \xi + \xsi ( s_i + \gamma_i ) \\
+& = \rho^{\prime} + t_i \rho^{\prime\prime} 
+ + \gamma_i \left( 1 - \xi + \xsi |\calI| \right)
 }}
 again using \req{vssum} and \req{gammat}, and of course
-\eqn{rho}{\rho^+ = \|v+t_i s\|^2 = \rho + 2 t_i \rho^{\prime}
+\eqn{rho}{\rho^+ = \|v-\xs+t_i s\|^2 = \rho + 2 t_i \rho^{\prime}
  + t_i^2 \rho^{\prime\prime}.}
 Thus it is trivial to update $\rho$ and its derivatives using
 \req{rhopp}--\req{rho} as the arc evolves.
-
-
-
+%\newpage
 
 %\disp{\bigsum_{j \in \calI^+} v_j^+
 %= \bigsum_{j \in \calI^+} v_j + t_i \bigsum_{j \in \calI^+} s_j
@@ -566,17 +586,46 @@ Thus it is trivial to update $\rho$ and its derivatives using
 %I suspect that the special update \req{diffs} may be crucial here for both
 %questions.
 
+%\numsection{Linear least-squares over the unit simplex}
+\numsection{Linear least-squares over multiple non-overlapping unit simplices}
+\label{section-mslls}
+
+A more general problem concerns the minimization of $f(x)$ from \req{slls}
+over the intersection of $\ns \geq 1$ non-overlapping unit simplices,
+\eqn{si}{\Delta_j^{n_j} \define
+ \{ x \st \sum_{i \in \calI_j} x_i = 1, \; x_i \geq 0, \; i \in \calI_j\}, \;\;
+ j = 1, \ldots, \ns,}
+where
+\eqn{is}{\bigcup_{j=1}^{\ns} \calI_j \subseteq \calN \tim{and}
+\calI_{j_1} \cap \calI_{j_2} = \emptyset \tim{for} 1 \leq j_1 < j_2 \leq \ns.}
+This allows the possibility that some variable $x_i$ are not constrained to
+lie within any of the simplices, and we denote the indices of these
+by $\calI_0 \define \calN \setminus \cup_{j=1}^{\ns} \calI_j$.
+The problem is of interest as this
+is precisely the case for small-angle scattering applications with
+$\ns$ distinct sets of polydisperse parameters, plus a pair of unconstrained 
+scaling parameters \cite{LengKingSnowRogeMarkMaheThiy22}. The crucial 
+observation is that projection into the feasible region \req{si} under
+the restriction \req{is} is no harder that for the single simplex case,
+the projection may be found block-componentwise according to the index sets
+$\calI_j$ (and the projection for any unconstrained variables trivially leaves
+them alone).
+
 \section*{Availability}
 
 The algorithms described have been implemented as the modern Fortran package
-{\tt sas}, and the later is available as part of the GALAHAD library
+{\tt slls}, and the later is available as part of the GALAHAD library
 \cite{GoulOrbaToin03:toms}. 
 
 \bibliographystyle{plain}
-\input{/home/nimg/pCloudDrive/papers/refs/refs}
-%\bibliography{g24}
+%\input{/home/nimg/pCloudDrive/reports/refs/refs}
+\bibliography{g24}
 
 \end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SAS Introduction %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 

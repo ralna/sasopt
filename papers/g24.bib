@@ -1,14 +1,59 @@
+@article{BaiLiu06,
+author  = {E.-W. Bai and Y. Liu},
+title   = {Least squares solutions of bilinear equations},
+journal = {Systems & Control Letters},
+volume  = 55, number = 6, pages = {466-472}, year = 2006,
+doi     = {https://doi.org/10.1016/j.sysconle.2005.09.010}}
+
 @article{BergFrie08:sisc,
  author  = {van den Berg, E. and Friedlander, M. P.},
  title   = {Probing the {P}areto frontier for basis pursuit solutions},
  journal = {SIAM Journal on Scientific Computing},
  volume  = 31, number = 2, pages = {890–-912}, year = 2008}
 
+@article{Bomz98,
+ author  = {I. M. Bomze},
+ title   = {On Standard Quadratic Optimization Problems},
+ journal = {Journal of Global Optimization},
+ volume  = 13, number = {}, pages = {369–-387}, year = 1998}
+
+@article{BresKochThum15,
+author  = {I. Bre{\ss}ler and J. Kohlbrecher and A. F. Th{\"{u}}nemann},
+title   = {{\it SASfit}: a tool for small-angle scattering data analysis
+           using a library of analytical expressions},
+journal = {Journal of Applied Crystallography},
+volume  = 48, number = 5, pages = {1587--1598}, year = 2015,
+doi     = {10.1107/S1600576715016544}}
+
+@inproceedings{ChenRichLantTheyHone11,
+  author    = {J. Chen and C. Richard and H. Lant{\'e}ri and C. Theys and
+               P. Honeine},
+  title     = {A gradient based method for fully constrained least-squares
+               unmixing of hyperspectral images},
+  booktitle = {{Proc. IEEE workshop on Statistical Signal Processing (SSP)}},
+  address   = {Nice, France},
+  pages     = {301--304}, year = {2011},
+  doi       = {10.1109/SSP.2011.5967687},
+  url       = {https://hal.archives-ouvertes.fr/hal-01966030}}
+
+@article{ComoLuciAlme09,
+author  = {P. Comon and X. Luciani and A. L. F. de Almeida},
+title   = {Tensor decompositions, alternating least squares and other tales},
+journal = {Journal of Chemometrics},
+volume  = 23, number = {7-8}, pages = {393-405}, year = 2009,
+doi     = {https://doi.org/10.1002/cem.1236}}
+
 @article{Cond16:mp,
  author  = {L. Condat},
  title   = {Fast projection onto the simplex and the $\ell_1$ ball},
  journal = {Mathematical Programming},
  volume  = {158}, number = {1--2}, pages = {575–-585}, year = 2016}
+
+@techreport{Cond17, institution = {GIPSA-Lab},
+ author  = {L. Condat},
+ title   = {Least-Squares on the Simplex for Multispectral Unmixing},
+ address = {Grenoble, France},
+ type    = {Research report}, number = {}, year = 2017}
 
 @book{ConnGoulToin00,
  author    = {A. R. Conn and N. I. M. Gould and  Toint, {\relax Ph}. L.},
@@ -25,9 +70,31 @@
  year      = {2022},
  url       = {https://arxiv.org/abs/2204.08153}}
 
+@article{DaiFlet06:mp,
+ author  = {Y.-H. Dai and R. Fletcher},
+ title   = {New algorithms for singly linearly constrained quadratic programs
+            subject to lower and upper bounds},
+ journal = {Mathematical Programming},
+ volume  = 106, number = 3, pages = {409--421}, year = 2006}
+
+@article{SeraToraViolBarl18:siopt,
+ author  = {D. di Serafino and G. Toraldo and M. Viola and J. L. Barlow},
+ title   = {A two-phase gradient method for quadratic programming problems with
+            a single linear constraint and bounds on the variables},
+ journal = {SIAM Journal on Optimization},
+ volume  = 20, number = 4, pages = {2809-2838}, year = 2018}
+
+@article{EldeAhma19,
+author  = {L. Eld\'{e}n and S. Ahmadi-Asl},
+title   = {Solving bilinear tensor least squares problems and application to
+          {H}ammerstein identification},
+journal = {Numerical Linear Algebra with Applications},
+volume  = 26, number = 2, pages = {e2226}, year = 2019,
+doi     = {https://doi.org/10.1002/nla.2226}}
+
 @article{EstrOrbaSaun19:simaa,
  author  = {R. Estrin and D. Orban and M. A. Saunders},
- title   = {{LSLQ}: An iterative method for linear least squares with an 
+ title   = {{LSLQ}: An iterative method for linear least squares with an
             error minimization property},
  journal = {SIAM Journal on Matrix Analysis and Applications},
  volume  = 40, number = 1, pages = {254--275}, year = 2019}
@@ -38,6 +105,20 @@
  journal = {SIAM Journal on Scientific Computing},
  volume  = 33, number = 5, pages = {2950--2971}, year = 2011}
 
+@techreport{Goul23, institution = {STFC-Rutherford Appleton Laboratory},
+ author  = {N. I. M. Gould},
+ title   = {A projection method for bound-constrained linear least-squares},
+ address = {Chilton, Oxfordshire, England},
+ type    = {Working Note}, number = {RAL 2023-1}, year = 2023,
+ url     = {https://www.numerical.rl.ac.uk/reports/gNAGIR20231.pdf}}
+
+@techreport{Goul23b, institution = {STFC-Rutherford Appleton Laboratory},
+ author  = {N. I. M. Gould},
+ title   = {Linear least-squares over the unit simplex},
+ address = {Chilton, Oxfordshire, England},
+ type    = {Working Note}, number = {RAL 2023-2}, year = 2023,
+ url     = {https://www.numerical.rl.ac.uk/reports/gNAGIR20232.pdf}}
+
 @article{GoulHribNoce01:sisc,
  author  = {N. I. M. Gould and M. E. Hribar and J. Nocedal},
  title   = {On the solution of equality constrained quadratic problems
@@ -45,9 +126,15 @@
  journal = {SIAM Journal on Scientific Computing},
  volume  = 23, number = 4, pages = {1375--1394}, year = 2001}
 
-@article{GoulScot17:toms, 
+@article{GoulOrbaToin03:toms, journal = TOMS,
+ author = {N. I. M. Gould and D. Orban and {\relax Ph}. L. Toint},
+ title  = {{\sf GALAHAD}---a library of thread-safe fortran 90 packages for
+  large-scale nonlinear optimization},
+ volume = 29, number = 4, pages = {353--372}, year = 2003}
+
+@article{GoulScot17:toms,
  author  = {N. I. M. Gould and J. A. Scott},
- title   = {The state-of-the-art of preconditioners for sparse linear 
+ title   = {The state-of-the-art of preconditioners for sparse linear
             least-squares problems},
  journal = {ACM Transactions on Mathematical Software},
  volume  = 43, number = 4, note = {Article 36}, year = 2017}
@@ -57,6 +144,34 @@
  title   = {Validation of subgradient optimization},
  journal = {Mathematical Programming},
  volume  = 6, number = 1, pages = {62--88}, year = 1974}
+
+@article{HeylBuraSche11,
+ author  = {R. Heylen and D. Burazerovic and P. Scheunders},
+ title   = {Fully constrained least squares spectral unmixing by
+            simplex projection},
+ journal = {IEEE Transactions on Geoscience and Remote Sensing},
+ volume  = 49, number = 11, pages = {4112--4122}, year = 2011}
+
+@book{Knut73, publisher = {Addison-Wesley},
+ author  = {D. E. Knuth},
+ title   = {The Art of Computer Programming, Volume 3: Sorting and Searching},
+ address = {Reading, UK},
+ note    = {\S5.2.1: Sorting by Insertion, pp.\ 80-–105},
+ year    = 1973}
+
+@article{LengKingSnowRogeMarkMaheThiy22,
+ author  = {K. Leng and S. King and T. Snow and S. Rogers and 
+            A. Markvardsen and S. Maheswaran and J. Thiyagalingam},
+ title   = {Parameter inversion of a polydisperse system in 
+            small-angle scattering},
+ journal = {Journal of Applied Crystallography},
+ volume  = 55, number = 4, pages = {966--977}, year = 2022}
+
+@article{Muss97,
+author  = {D. R. Musser},
+title   = {Introspective sorting and selection algorithms},
+journal = {Software: Practice and Experience},
+volume  = 27, number = 8, pages = {983-993}, year = 1997}
 
 @article{PaigSaun82a:toms,
  author  = {C. C. Paige and M. A. Saunders},

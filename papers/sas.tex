@@ -25,558 +25,21 @@
 
 \usepackage{subdepth}
 
-%\newcommand{\paperauthor}{Working note --- Nick et al.}
-%\newcommand{\paperauthor}{Working note --- Nick Gould}
-\newcommand{\paperauthor}{Working note RAL-NA-2023--2 --- Nicholas I.\ M.\ Gould}
-%\newcommand{\papertitle}{Optimization methods for small angle scattering}
-\newcommand{\papertitle}{Linear least-squares over the unit simplex}
-\date{14th March 2023}
+\newcommand{\paperauthor}{Working note --- Nick et al.}
+\newcommand{\papertitle}{Optimization methods for small angle scattering}
 
 \title{\papertitle}
 \author{\paperauthor}
 
 \pagestyle{myheadings}
-%%\markboth{Draft version - not for circulation - \today}{Working Note --- Optimization for SAS\hfill}
-\markboth{Working Note RAL NA-2023-2 ---- Nicholas I.\ M.\ Gould}{Working Note RAL NA2023-2 --- Linear least-squares over the unit simplex\hfill}
-%\newcommand{\theabstract}{{%\small
-%Notes
-%}}
+\markboth{Draft version - not for circulation - \today}{Working Note --- Optimization for SAS\hfill}
+\newcommand{\theabstract}{{%\small
+Notes
+}}
 
 \begin{document}
 
 \maketitle
-
-\setcounter{page}{1}
-%\numsection{Linear least-squares over the unit simplex}
-\numsection{Introduction}
-\label{section-slls}
-
-We are concerned with the simplex-constrained linear least-squares
-problem
-\eqn{slls}{\minimizeover{x \in \Delta^n}
- f(x) \define \half \| A x - b \|^2,}
-where the $m$ by $n$ matrix $A$ and $m$ vector $b$ are given,
-the unit simplex
-\disp{\Delta^n \define
- \{ x \st \sum_{i=1}^n x_i = 1, \; x_i \geq 0, \; i = 1, \ldots,n\},}
-and $\|\cdot\|$ denotes the Euclidean ($\ell_2$) norm;
-extension to the weighted case in which the objective function is
-instead $\half \| A x - b \|^2 = \half (Ax-b)^T W (Ax-b)$ for some
-positive definite (diagonal) matrix $W$ is obvious, and although we
-give no details here, our software copes with this possibility.
-Let $P(v)$ be the projection of a given $v$ into the simplex $\Delta^n$;
-we will return shortly to see how this may be calculated. In addition, let
-\eqn{active-set}{\calA(v) \define \{ 1 \leq i \leq n \st P(v)_i = 0\}}
-be the set of indices of variables that are zero at $P(v)$. We let
-$e$ be the vector of ones of appropriate length, and $s_{\calI}$ is the
-vector whose components
-are the components $[s]_i$ of a given vector $s$ for $i \in \calI$,
-where $\calI \subseteq \calN \define \{1,\ldots,n\}$.
-We will abuse notation slightly in what follows: a subscript $k$ will
-refer to an iterate (and may be a vector or matrix), while other
-subscripts $i$, $j$,
-etc., will be components of vectors and higher-order tensors (if needed
-the component of a vector iterate will have a subscript $i,k$).
-
-To put things into perspective, problem \req{slls} is a special but
-important instance of the more general single-constrained quadratic
-program
-\eqn{qpone}{\minimizeover{x \in \smallRe^n} \half x^T H x + c^T x
-\tim{subject to} a^T x = \beta \tim{and} x\s{L} \leq x \leq x\s{U},}
-for a given symmetric positive-semi-definite matrix $H$,
-vectors $c, a, x\s{L}$ and $x\s{U}$ and scalar $\beta$. Methods of various
-types have been proposed for this, those based on active-sets,
-interior-points, and gradient projection
-\cite{DaiFlet06:mp,SeraToraViolBarl18:siopt}
-being the most common. The case where the feasible set in \req{qpone} is
-the simplex $\Delta^n$ is commonly called a standard quadratic program,
-although much of the focus in that case is devoted to the nonconvex case
-for which $H$ may have negative eginvalues \cite{Bomz98}.
-
-The specific problem \req{slls} occurs naturally in multi-spectral un-mixing
-\cite{ChenRichLantTheyHone11,Cond17,HeylBuraSche11}, while we were drawn to
-it as a subproblem for alternating methods \cite{ComoLuciAlme09}
-that aim to fit a multilinear form $T [x_i,\ldots,x_m]$ to data,
-in a weighted least-squares sense, from polydisperse small-angle scattering
-applications, e.g., \cite{LengKingSnowRogeMarkMaheThiy22}. Here $T$ is a 
-given $m$-way tensor,
-the vectors of unknowns $x_i$ inherit dimensions from $T$, and the alternating
-methods successively fix $m-1$ of them and find the remainder by least-sqaures
-fitting subject to a normalizing simplex constraint.
-
-%\newpage
-
-\numsection{An algorithm}
-
-\subsection{A basic algorithm}
-
-A basic method to find an approximate solution to \req{slls} is as follows:
-
-\balgo{alg-slls-basic}{linear least-squares over the unit simplex}{
-\begin{description}
-\item[Step 0: Initialization.]
-Given a convergence tolerance $\epsilon > 0$,
-pick an initial estimate $x_0 \in \Delta^n$, and set a counter $k=0$.
-
-\item[Step 1: Test for termination.]
-Compute the residual $r_k = A x_k - b$ and gradient $g_k = A^T r_k$.
-If
-\disp{ \| P(x_k - g_k) - x_k \| \leq \epsilon,}
-stop with the approximate solution $x_* \define x_k$.
-
-\item[Step 2: Compute a Cauchy point.]
-Compute the Cauchy direction
-\eqn{cauchydir}{\sck = \argminover{s \in \tinyRe^n} g_k^T s
-\;\;\mbox{subject to} \;\; e^T s = 0 \;\; \mbox{and}\;\; s \geq - x_k,}
-the stepsize $\alphack>0$ that sufficiently reduces
-$f(P(x_k + \alpha \sck))$, and the Cauchy point
-$\xck = P(x_k + \alphack \sck)$.
-
-\item[Step 3: Improve on the Cauchy point.]
-If desired, compute an approximate solution $s_k$ to the
-{\em equality-constrained} linear least-squares problem
-\eqn{eslls}{\minimizeover{s \in \tinyRe^n} \half \| A (\xck + s) - b\|^2
-\; \mbox{subject to} \; e^T s = 0 \; \mbox{and} \; s_{\calA(\xck)} = 0.
-}
-Otherwise define the next iterate $x_{k+1} = \xck$ and go to Step 5.
-\end{description}
-}
-{
-\begin{description}
-\item[Step 4: Find the next iterate.]
-Find a stepsize $\alpha_k>0$ that reduces
-$f(P(\xck + \alpha s_k))$, and define the next iterate
-$x_{k+1} = P(x_k + \alpha_k s_k)$.
-
-\item[Step 5: Perform the next iteration.]
-Increase $k$ by 1 and go to Step 1.
-\end{description}
-}
-
-A few comments are in order. Firstly, in Steps 2 and 4 we need to consider
-the least-squares objective function $f(x)$ along a piecewise arc
-$x(\alpha;x,v) = P(x + \alpha v)$ emanating from a feasible point $x$
-in the direction $v$ but bent so as to remain feasible with respect to
-$\Delta^n$. We consider this further in due course. We have not specified
-what ``approximate'' means here, but two possibilities are either to find
-the exact minimizer along the arc, or to find a point that gives
-``sufficient'' decrease to guarantee convergence.
-
-Secondly, it is trivial to find the required Cauchy direction in
-\req{cauchydir}. For the problem in question is clearly a linear
-program, and as the feasible set is bounded, its solution must occur
-at a vertex, that is a point
-at which $n-1$ of the bounds $s \geq x_k$ are satisfied as equalities.
-Suppose that variable $i$ is the exception. Then
-\eqn{defs}{ s_j = - x_{j,k} \tim{for} j \neq i \tim{and} s_i = 1 - x_{i,k}}
-since $x_k \in \Delta^n$ and $e^T s = 0$. Hence, for this $s$, the objective
-\disp{g_k^T s = \sum_{j=1}^n g_{j,k} s_j = - \sum_{j=1}^n g_{j,k} x_{k,j} + g_{i,k}}
-using \req{defs}. The smallest value of $g_k^T s$ over all such vertices
-then occurs for the index (perhaps indices) for which $g_{i,k}$ is smallest,
-and we use such an $i$ with \req{defs} to define $\sck$.
-
-Thirdly, notice that Steps 3 and 4 are optional; the algorithm is
-guaranteed to converge without them, but almost always moving beyond the
-Cauchy point improves performance. From a theoretical perspective,
-the Cauchy point plays two roles, it guarantees convergence and in
-non-degenerate cases it also ultimately predicts the optimal face on
-the unit simplex. Once this happens, the exact solution
-$\xck + s_k$ from \req{eslls} will also be that of \req{slls},
-and $\alpha_k = 1$ will result from Step 4. Steps 3 and 4 might be skipped if,
-for example, the set $\calA(\xck)$ differs significantly from its
-immediate predecessor.
-
-Finally, the equality-constrained linear least-squares problem \req{eslls}
-may be written more compactly as
-\eqn{ceslls}{\minimizeover{s_{\calI_k}} \half
- \| A_{\calI_k} s_{\calI_k} - ( b - A \xck) \|^2
-\; \mbox{subject to} \; e^T s_{\calI_k} = 0}
-to determine the ``free'' components $s_{\calI_k}$ of $s$, where
-$\calI_k = \calN \setminus \calA(\xck)$. That is, it only involves
-the ``free'' columns $ A_{\calI_k}$ of $A$. To solve a generic singly-constrained
-linear least-squares problem
-\eqn{sells}{\minimizeover{s \in \tinyRe^n} m(s) \define
- \half \| A s - b \|^2 \; \mbox{subject to}\; e^T s = 0}
-at least two possibilities are available.
-
-The first is to note that the solution
-to \req{sells} must satisfy the optimality conditions
-\disp{A^T ( A s - b ) + \lambda e = 0 \; \mbox{and} \; e^T s = 0}
-for some scalar Lagrange multiplier $\lambda$. This then leads to the
-linear system
-\disp{ \mat{cc}{A^T A & e \\ e^T & 0 } \vect{s \\ \lambda} = \vect{ A^T b \\ 0}}
-or, on defining $r = b - A s$, the expanded system
-\disp{ \mat{ccc}{I & A & 0 \\ A^T & 0 & e  \\ 0 & e^T & 0 }
- \vect{r \\ s \\ \lambda} = \vect{ b \\ 0 \\ 0}.}
-or even its solution via
-\disp{\vect{ r \\ s } = \vect{ p \\ q } - \lambda \vect{ u \\ v },
-\;\mbox{where} \mat{cc}{I & A \\ A^T & 0} \mat{cc}{p & u \\ q & v }
-  = \mat{cc}{ b & 0 \\ 0 & e } \;\mbox{and}\; \lambda = \frac{q^T e}{v^T e}.}
-Since we are primarily only interested in the $s$ component of the
-solution, the latter may be rewritten as
-\eqn{nells}{s = q - \lambda v, \;\mbox{where}\; A^T A q = A^T b, \;
- A^T A v = - e \;\mbox{and}\; \lambda = \frac{q^T e}{v^T e}.}
-Each of the above systems may be solved using symmetric, indefinite
-factorization, and in the special case \req{nells}, Cholesky factorization
-of $A^T A$ suffices.
-
-A second possibility is to solve---possibly approximately---the problem
-using an iterative method. Standard techniques such as the preconditioned
-conjugate-gradient normal equation (CGNE) method may be applied so long
-as the preconditioning step respects the single linear constraint. That is,
-given a gradient $g_k$ of $m(s)$ at CGNE iterate $s_k$, the required slope
-$g_k^T v_k$ is computed to satisfy
-\eqn{pcg}{ \mat{cc}{ P & e \\ e^T & 0 } \vect{v_k \\ \mu_k} = \vect{g_k \\ 0}}
-for some suitable symmetric approximation $P$ to $A^T A$.
-This is a special case of the projected conjugate gradient method
-\cite{GoulHribNoce01:sisc} applied to \req{sells}, and here as
-in \cite[\S5]{GoulHribNoce01:sisc} it is very important to perform at
-least one iterative refinement per solve \req{pcg} to ensure that the projected
-conjugate gradient iterates do not deviate significantly from the
-manifold $e^T s_{\calI_k} = 0$. Of course the solution to \req{pcg} may be
-expressed formally as
-\disp{ v_k = P^{-1} g_k - \mu_k P^{-1} e, \;\;\mbox{where}\;\; \mu_k =
- \frac{e^T P^{-1} g_k}{e^T e}}
-which is useful if $P$ has a simple form, e.g., if $P$ is diagonal with
-$P = $ diag$(A^T A)$ being a common, often effective \cite{GoulScot17:toms}
-option. Constrained variants of other specialised iterative least-squares
-methods such as LSQR \cite{PaigSaun82a:toms},
-LSMR \cite{FongSaun11:sisc} or LSLQ \cite{EstrOrbaSaun19:simaa}
-may be preferred.
-
-\subsection{Projections onto the unit simplex and projection arcs}
-
-\subsubsection{Projections onto the unit simplex}
-
-Given the vector $v$, we let $v_{(i)}$, $i = 1,\ldots,n$,
-be the value of its $i$-th largest component.
-The basic $O(n\log n)$ method for finding the projection $P(v)$ is due to
-\cite{HeldWolfCrow74:mp}, and has been improved over the
-years, see \cite{Cond16:mp,DaiChen22,BergFrie08:sisc} and the citations within.
-A typically efficient method is as follows:
-%\newpage
-
-%% \algo{alg-proj-basic}{projection onto the unit simplex
-%% \cite{HeldWolfCrow74:mp}}{
-%% \begin{enumerate}
-%% \item Sort $v$ so that $v_{(1)} \geq v_{(2)} \geq \ldots \geq v_{(n)}$.
-
-%% \item Define
-%% \disp{j_{\max} \define \max_{1 \leq j \leq n}
-%%  \left\{ j \st \left( \bigsum_{i=1}^j v_{(i)} - 1\right) / j < v_{(j)} \right\}.}
-
-%% \item Define
-%% \disp{\tau \define \left(\bigsum_{j=1}^{j_{\max}} v_{(j)} - 1\right)/j_{\max}.}
-
-%% \item Set $P(v)_i \define \max [v_i - \tau ,0]$ for $i = 1, \ldots ,n$.
-%% \end{enumerate}
-%% }
-
-%% The quicksort algorithm is frequently recommended in step 1 of Algorithm 1.
-%% However, all that is actually needed is the largest entry of the
-%% unsorted set of components, and for this the heapsort algorithm is
-%% often preferred.
-
-\algo{alg-proj-heap}{projection onto the unit simplex via heapsort
-\cite{BergFrie08:sisc}}{
-\begin{enumerate}
-\item Build a heap $\calH$ with largest entry $h$ from the components of $v$.
-\item For j = 1,\ldots,n, do
-
-\begin{enumerate}
-\item Set $v_{(j)} \define h$.
-
-\item If \disp{\left(\bigsum_{i=1}^j v_{(i)} - 1\right)/j \geq v_{(j)},}
-exit the loop.
-
-\item Set $j_{\max} \define j$.
-
-\item Remove $h$ from $\calH$, and restore the heap $\calH$ with new
-largest entry $h$
-\end{enumerate}
-
-\item Define
-\disp{\tau \define \left(\bigsum_{j=1}^{j_{\max}} v_{(j)} - 1\right)/j_{\max}.}
-
-\item Set $P(v)_i \define \max [v_i - \tau ,0]$ for $i = 1, \ldots ,n$.
-\end{enumerate}
-}
-
-\noindent
-Such a method is based on satisfying the optimality conditions for the
-projection problem
-\disp{P(v) = \!\! \argminover{p \in \Delta^n} \half \| p - v\|^2}
-by the constructive finite iteration in Step 2.
-
-\subsubsection{Projection arcs}\label{sect-proj-arcs}
-
-We next consider the arc $P(x+\alpha d)$ from a given $x \in \Delta^n$ in
-the generic direction $d$ for positive $\alpha$. Since $x$ lies within
-$\Delta^n$,  the arc will be piecewise linear as $\alpha$ increases,
-and will change direction whenever
-one (or more) of its components shrinks to zero (and is fixed thereafter).
-We refer to the points at which the direction changes as {\em breakpoints},
-and the vectors that join adjacent breakpoints as {\em segments}.
-
-Suppose that $v$ is such a breakpoint, and that $\calA \define \calA(v)$
-is as in \req{active-set}. Then the next segment $s$ is in the direction
-\disp{\argminover{s \in \tinyRe^n} \half\|s-d\|^2 \;\mbox{subject to} \;
- e^T s = 0 \; \mbox{and}\; s_{\calA} = 0,}
-for which the necessary optimality conditions
-\disp{ s_{\calI} - d_{\calI} + \lambda e_{\calI} = 0,\;  e_{\calI}^T s_{\calI} = 0,
-\, \mbox{and}\; s_{\calA} = 0}
-give that $s$ has components
-\eqn{s}{s_{\calI} = d_{\calI} - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}}e_{\calI}
- \;\;\mbox{and}\; s_{\calA} = 0}
-where $\calI \define \calN \setminus \calA$.
-
-Now suppose that at the next breakpoint $v^+$ variable $i$ reaches zero,
-and thus that $\calI^+ = \calI \setminus \{i\}$. It then follows from \req{s}
-that the new segment $s^+$ emanating from $x^+$ satisfies
-\eqn{splus}{s^+_{\calI^+} = d_{\calI^+}
- - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}e_{\calI^+}
-\; \;\mbox{and}\; s_{\calA^+} = 0.}
-In particular, if $j \in \calI^+ \subset \calI$,  it follows from
-\req{s} and \req{splus} that
-\disp{s_j = d_j - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}} \;\mbox{and}\;
- s^+_j = d_j - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}}
-and particularly that
-\eqn{diffs}{s^+_j = s_j + \gamma_i, \;\mbox{where}\;
-\gamma_i = \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}}
- - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}
-= \frac{e_{\calI}^T d_{\calI}}{ |\calI|}
- - \frac{e_{\calI}^T d_{\calI} - d_i}{ |\calI|- 1}
-= \frac{|\calI| d_i - e_{\calI}^T d_{\calI}}{|\calI|(|\calI|- 1)}
-}
-since $e_{\calI^+}^T e_{\calI^+} = |\calI^+| = |\calI|- 1 = e_{\calI}^T e_{\calI} -1$
-and
-$e_{\calI^+}^T d_{\calI^+} = e_{\calI}^T d_{\calI} - d_i$. Thus each nonzero
-component of the new segment is that of the old segment shifted by
-{\em the same} $\gamma_i$. We may also use the relationships
-$e_{\calI}^T s_{\calI} = 0 = e_{\calI^+}^T s^+_{\calI^+}$ together with \req{diffs}
-to deduce that
-\eqn{sumsj}{0 = \sum_{j \in \calI^+} s^+_j = \sum_{j \in \calI^+} ( s_j  + \gamma_i ) =
-\sum_{j \in \calI} s_j  - s_i + \gamma_i |\calI^+| =
-- s_i + \gamma_i |\calI^+|
-}
-and thus we have the alternative definition
-\eqn{gammai}{\gamma_i  = \frac{s_i}{|\calI^+|}.}
-Since $v_i + \alpha s_i = 0$, and $v_i > 0$, and $\alpha > 0$, we must have
-that $s_i < 0$ and consequently $\gamma_i < 0$. Hence the nonzero components
-of successive segments decrease; those that start negative stay so, while
-those that are initially positive move towards negativity.
-
-We calculate breakpoints by examining the segment $s$ emanating from $v$
-and picking
-\eqn{vplus}{v^+ = v + t s, \tim{where}
- \tmin = \min_{s_j<0} t_j, \; \mbox{where}\; t_j = - v_j/s_j.}
-By definition of $i$, we have $s_i < 0$ and $\tmin = t_i = - v_i/s_i$.
-Now suppose that $s_j < 0$ for component $j \neq i$. Then, as in the
-previous paragraph, $s_j^+ = s_j + \gamma_i$, and hence $s_j^+ < 0$.
-Moreover
-\disp{t_j^+ - t_j = - \frac{v_j + ts_j}{s_j + \gamma_i} + \frac{v_j}{s_j}
-= \frac{v_j s_i^2 / |\calI^+| + v_i s_j^2}{ s_j^+ s_i s_j} < 0}
-since the numerator is positive and the denominator negative,
-and hence $t_j^+ < t_j$. It might be tempting to hope that if
-$\tmin \leq t_j < t_k$ for some pair $j,k \neq i$ then $t^+_j < t^+_k$.
-For if this were so, it would be possible to sort the indices at the
-beginning of the arc, and thereafter pick breakpoints sequentially
-according to their sorted order;
-this is one of the keys to efficiency in similar methods for the
-simpler box-shaped feasible domain $l \leq x \leq u$
-\cite[\S17.3]{ConnGoulToin00}.
-Unfortunately, this is not the case as the following example shows.
-
-Consider the value $v = (0.01, 0.01, 0.05, 0.93) \in \Delta^4$, and the
-direction $s = d = (-10,-1,-10,21)$ for which $e^T s = 0$. Then
-$\tmin = t_1 = 0.001 < t_3 = 0.005 <  t_2 = 0.01$, and hence $t = 0.001$, giving
-$v^+ = (0, 0.009,0.04,0.951)$,
-$s^+ = (0. -4.3333, -13.3333, 17.6667)$ and
-$\tmin^+ = t^+_2 = 0.0020769 < t^+_3 = 0.003$. Thus it seems likely that it is
-necessary to sort indices at each breakpoint when deciding where the
-next segment ends---in practice, we have observed that it is
-common for the order to be retained, and so the lack of a guarantee is
-regrettable. This suggests that sorting algorithms for ``mostly sorted'' data,
-such as insertion sort \cite{Knut73} or introsort \cite{Muss97},
-might be profiably employed in many cases.
-
-%\disp{\arr{rl}{t_j^+ - t_k^+ \ngap & =
-% \bigfrac{v_k + t s_k}{s_k + \gamma_i} - \bigfrac{v_j + t s_j}{s_j +\gamma_i}\\
-% & = \bigfrac{(t-t_k) s_k}{s_k + \gamma_i}
-%      - \bigfrac{(t-t_j) s_j}{s_j + \gamma_i} \\
-%}}
-%by definition of $t_j$ and $t_k$, the bound $t_j - t < t_k - t$
-
-\subsubsection{Objective function evolution along a projection arc}
-
-Our next goal is to consider the evolution of the objective function
-\disp{f(P(x+\alpha d)) = \half \| A P(x+\alpha d) -b\|^2} as $\alpha$
-increases from 0 from $x \in \Delta^n$ in the segment direction $d$.
-As we have already seen, we may break the arc $P(x+td)$ into pieces,
-as we shall consider $v+t s$ from the breakpoint $v$ along the segment
-$s$ for $t \geq 0$. Thus, we are concerned with the convex quadratic
-\disp{f(v+ts) = \half \|r\|^2 + t f^{\prime} + \half t^2 f^{\prime\prime},
- \;\mbox{where}\; r \define A v - b, \; p \define A s, \;
-f^{\prime} \define r^T p \;\mbox{and}\;
- f^{\prime\prime} \define \|p\|^2.}
-There are clearly three possibilities. It might be that $v$ is a (local)
-minimizer of $f$ along the arc; this will happen if $f^{\prime} \geq 0$.
-If this is not the case, either we may move to the end of the segment
-as $f(v+ts)$ continues to decrease, or we encounter a local minimizer
-en route. The latter occurs when
-\disp{t_{\mbox{\scriptsize opt}} \define - f^{\prime} / f^{\prime\prime} \leq \tmin.}
-Naively, one might simply evaluate these three possibilities by computing
-the product $p = As$ required by $f^{\prime}$ and $f^{\prime\prime}$. However, it is
-more efficient to recur the required quantities as the arc search proceeds.
-
-Suppose that the search continues to the next breakpoint, $v^+$, and that
-variable $i$ is reduced to zero, i.e., $\calI^+ = \calI \setminus \{i\}$.
-Recall from \req{s} that
-\disp{p = A s = A_{\calI} s_{\calI} = A_{\calI^+} s_{\calI^+} + a_i s_i,}
-where $a_i$ is the $i$-th column of $A$,
-and from \req{diffs} that
-\disp{p^+ = A s^+ = A_{\calI^+} s^+_{\calI^+}
- = A_{\calI^+} ( s_{\calI^+} + \gamma_i e_{\calI^+}),}
-and hence that
-\disp{p^+ = p + \gamma_i A_{\calI^+} e_{\calI^+} - s_i a_i.}
-But if $w \define  A_{\calI} e_{\calI}$, we may recur
-\eqn{w}{w^+ = A_{\calI^+} e_{\calI^+} = A_{\calI} e_{\calI} - a_i = w - a_i}
-and subsequently
-\eqn{p}{p^+ = p + \gamma_i w^+ - s_i a_i.}
-Crucially, both recurrences simply need access to a single---possibly
- sparse---column of $A$. In addition, we may recur
-\eqn{r}{r^+ = A v^+ - b = A ( v + \tmin s ) - b = r + \tmin p}
-and calculate
-\eqn{primes}{\half \|r^+\|^2 = \half \|r\|^2 + \tmin  f^{\prime} +
- \half \tmin^2 f^{\prime\prime}, \;
-f^{\prime +} = r^{+ T} p^+ \;\mbox{and}\;
- f^{\prime\prime +} = \|p^+\|^2.}
-The main work involved are the two potentially-sparse and two dense vector
-additions in \req{w}--\req{r}, and two inner products in \req{primes},
-and avoids a more costly matrix-vector product $As$. This is less efficient
-than projected search when the feasible region is a box
-\cite{Goul23}, but this appears
-to be inevitable because of the complicating constraint $e^T x = 1$.
-
-Another possibility is to aim for a value along the arc that provides
-sufficient decrease of $f(P(x+\alpha d))$ to ensure convergence rather than
-for the minimizer.
-Such a possibility has been examined in more general contexts using
-Goldstein-like conditions \cite[\S12.2]{ConnGoulToin00}, but we prefer a
-slightly simpler Armijo version such as that in \cite{Sart93b}. Essentially,
-given an initial estimate $\alpha_0$ of the optimal step length $\alpha$,
-$f(P(x+\alpha d))$ is computed for a sequence of decreasing values
-$\alpha_k = \alpha_0 \beta^k$, $k \geq 0$ with $\beta \in (0,1)$,
-and the search terminated at the first $k$ for which
-\eqn{suffdec}{f(P(x+\alpha_k d)) \leq f(x) + \eta
- (\nabla_x f(x) )^T ( P(x+\alpha_k d) - x )}
-for given (typically small) $\eta \in (0,1)$.
-If we write $s_k = P(x+\alpha_k d) - x$ and $r_k = A P(x+\alpha_k d) -b$,
-then $r_k = r + A s_k$, where we recall that $r = A x - b$.
-Hence we may rewrite \req{suffdec} as
-\disp{\frac{1}{2} r_k^T r_k \leq \frac{1}{2} r^T r + \eta (r^T r_k - r^T r ).}
-Thus each $k$ requires the computation of a projection $P(x+\alpha_k d)$,
-a matrix-vector product $As_k$ and a pair of new inner products
-$r^T r_k$ and $r_k^T r_k$. How this compares to the earlier, exact method
-depends entirely on the choice of $\alpha_0$, and a good choice isn't obvious.
-Indeed, a large initial $\alpha_0$ may result in a wasteful sequence of
-identical evaluation points $P(x+\alpha_k d)$.
-
-\subsection{Regularized objective function evolution along a projection arc}
-
-A related problem is the simplex-constrained quadratically-regularized
-linear least-squares problem
-\eqn{srlls}{\minimizeover{x \in \Delta^n}
- r(x) \define f(x) + \half \sigma \|x\|^2
- \equiv \half \| A x - b \|^2 + \half \sigma \|x\|^2 ,}
-for some weight $\sigma \geq 0$. Much of what we have said so far in Section
-\ref{section-slls} holds with minor modification---such as replacing
-$g_k$ by $A^T r_k + \sigma x_k$, adding the term $\half \sigma \|\xck +s\|^2$ to
-the objective in \req{eslls}, and adding/subtracting the term $\sigma I$ from
-appropriaate blocks of the systems on p.4---and the only detail we
-address is how the regularized objective function
-\disp{r(P(x+\alpha d)) = \half \| A P(x+\alpha d) -b\|^2
-+ \half \sigma\|P(x+\alpha d)\|^2} evolves as $\alpha$ increases. We thus
-focus on the term $\|v + t s\|^2$ on the segment $s$ emanating
-from the breakpoint $v$, at which components indexed by $\calI$ are free,
-as $t \geq 0$ increases. Since
-\disp{\|v + ts\|^2 = \rho + 2 t \rho^{\prime}
-  + t^2 \rho^{\prime\prime}, \;\;\mbox{where}\;\;
-\rho \define ||v||^2, \;
-\rho^{\prime} \define v^T s
-\;\mbox{and}\;
-\rho^{\prime\prime} \define ||s||^2,}
-we need to examine how $\rho$ and its derivatives behave along successive
-segments.
-
-It follows from the discussion in Section~\ref{sect-proj-arcs}
-that if the segment finishes at the breakpoint $v^+$ at which the
-component $v_i^+ = 0$, and thus $\calI^+ = \calI \setminus \{i\}$, we have
-\disp{ s_j^+ = s_j + \gamma_i \tim{for} j \in \calI^+ \tim{and} s_i^+ = 0}
-from \req{diffs}, and
-\disp{v^+_j = v_j + t_i s_j \tim{for} j \in \calI^+ \tim{and} v_i^+ = 0}
-from \req{vplus}, where we recall that
-\eqn{vssum}{0 = \sum_{j \in \calI} s_j = \sum_{j \in \calI^+} s_j + s_i
-\tim{and} 1 = \sum_{j \in \calI} v_j = \sum_{j \in \calI^+} v_j + v_i}
-because $v \in \Delta^n$ and
-\eqn{gammat}{\gamma_i |\calI^+| = s_i \tim{and} v_i + t_i s_i = 0}
-which follow directly from \req{gammai} and \req{vplus}. Thus
-\eqn{rhopp}{\arr{rl}{{\rho^{\prime\prime}}^+ \ngap &
-= \bigsum_{j \in \calI^+} ( s_j + \gamma_i )^2
-= \bigsum_{j \in \calI^+}  s_j^2 + 2 \gamma_i \sum_{j \in \calI^+} s_j
-  + \gamma_i^2 |\calI^+|
- = \rho^{\prime\prime} - s_i^2 - 2 \gamma_i s_i + \gamma_i^2 |\calI^+| \\
- & = \rho^{\prime\prime} - s_i^2 - \gamma_i s_i}}
-using \req{vssum} and \req{gammat}. Likewise
-\eqn{rhop}{\arr{rl}{{\rho^{\prime}}^+ \ngap &
-= \bigsum_{j \in \calI^+} ( s_j + \gamma_i )( v_j + t_i s_j)
-= \bigsum_{j \in \calI^+} s_j v_j + t_i \bigsum_{j \in \calI^+} s_j^2
- + \gamma_i \bigsum_{j \in \calI^+} v_j + \gamma_i  t_i \bigsum_{j \in \calI^+} s_j \\
-& = \bigsum_{j \in \calI+} s_j v_j - s_i v_i
- + t_i \left( \bigsum_{j \in \calI} s_j^2 - s_i^2 \right)
- + \gamma_i ( 1 - v_i ) - \gamma_i  t_i s_i \\
-& = \rho^{\prime} + t_i \rho^{\prime\prime} - s_i ( v_i + t_i s_i )
- + \gamma_i - \gamma_i ( v_i + t_i s_i ) \\
-& = \rho^{\prime} + t_i \rho^{\prime\prime} + \gamma_i
-}}
-again using \req{vssum} and \req{gammat}, and of course
-\eqn{rho}{\rho^+ = \|v+t_i s\|^2 = \rho + 2 t_i \rho^{\prime}
- + t_i^2 \rho^{\prime\prime}.}
-Thus it is trivial to update $\rho$ and its derivatives using
-\req{rhopp}--\req{rho} as the arc evolves.
-
-
-
-
-%\disp{\bigsum_{j \in \calI^+} v_j^+
-%= \bigsum_{j \in \calI^+} v_j + t_i \bigsum_{j \in \calI^+} s_j
-%=  \bigsum_{j \in \calI} v_j - v_i - t_i s_i
-%=  \bigsum_{j \in \calI} v_j}
-%from \req{vplus}.
-
-%Questions still to answer:
-%\begin{enumerate}
-%\item is it possible to compute the next breakpoint without another complete
-%ordering of $-v_i/s_i$ (= distances to boundary of simplex)? False.
-
-%\item can we compute $f(P(x+\alpha v))$ efficiently? Without recomputing
-%everything at each breakpoint as the arc direction changes?
-
-%\end{enumerate}
-%I suspect that the special update \req{diffs} may be crucial here for both
-%questions.
-
-\section*{Availability}
-
-The algorithms described have been implemented as the modern Fortran package
-{\tt sas}, and the later is available as part of the GALAHAD library
-\cite{GoulOrbaToin03:toms}. 
-
-\bibliographystyle{plain}
-\input{/home/nimg/pCloudDrive/papers/refs/refs}
-%\bibliography{g24}
-
-\end{document}
 
 \section{Introduction}
 
@@ -666,3 +129,418 @@ $\omega^l$, $\omega^r$, $\omega^\theta$, $\omega^\phi$ and  $(\xi,\beta)$
 in some way, fixing all but one at the current best values
 and minimizing with respect to the remainder.
 
+\numsection{Linear least-squares over the unit simplex}
+
+In this section we focus on the simplex-constrained linear least-squares
+problem
+\eqn{slls}{\minimizeover{x \in \Delta^n}
+ f(x) \define \half \| A x - b \|^2,}
+where the $m$ by $n$ matrix $A$ and $m$ vector $b$ are given
+and $\|\cdot\|$ denotes the Euclidean ($\ell_2$) norm;
+extension to the weighted case in which the objective function is
+instead $\half \| A x - b \|^2 = \half (Ax-b)^T W (Ax-b)$ for some
+positive definite (diagonal) matrix $W$ is obvious, and although we
+give no details here, our software copes with this possibility.
+Let $P(v)$ be the projection of a given $v$ into the simplex $\Delta^n$;
+we will return shortly to see how this may be calculated. In addition, let
+\eqn{active-set}{\calA(v) \define \{ 1 \leq i \leq n \st P(v)_i = 0\}}
+be the set of indices of variables that are zero at $P(v)$. We let
+$e$ be the vector of ones of appropriate length, and $s_{\calI}$ is the
+vector whose components
+are the components $[s]_i$ of a given vector $s$ for $i \in \calI$,
+where $\calI \subseteq \calN \define \{1,\ldots,n\}$.
+We will abuse notation slightly in what follows: a subscript $k$ will
+refer to an iterate (and may be a vector or matrix), while other
+subscripts $i$, $j$,
+etc., will be components of vectors and higher-order tensors (if needed
+the component of a vector iterate will have a subscript $i,k$).
+
+\newpage
+
+\subsection{A basic algorithm}
+
+A very basic method to find an approximate solution method is as follows:
+
+\algo{alg-slls-basic}{linear least-squares over the unit simplex}{
+\begin{description}
+\item[Step 0: Initialization.]
+Given a convergence tolerance $\epsilon > 0$,
+pick an initial estimate $x_0 \in \Delta^n$, and set a counter $k=0$.
+
+\item[Step 1: Test for termination.]
+Compute the residual $r_k = A x_k - b$ and gradient $g_k = A^T r_k$.
+If
+\disp{ \| P(x_k - g_k) - x_k \| \leq \epsilon,}
+stop with the approximate solution $x_* \define x_k$.
+
+\item[Step 2: Compute a Cauchy point.]
+Compute the Cauchy direction
+\eqn{cauchydir}{\sck = \argminover{s \in \tinyRe^n} g_k^T s 
+\;\;\mbox{subject to} \;\; e^T s = 0 \;\; \mbox{and}\;\; s \geq - x_k,}
+the stepsize $\alphack>0$ that sufficiently reduces
+$f(P(x_k + \alpha \sck))$, and the Cauchy point
+$\xck = P(x_k + \alphack \sck)$.
+
+\item[Step 3: Improve on the Cauchy point.]
+If desired, compute an approximate solution $s_k$ to the
+{\em equality-constrained} linear least-squares problem
+\eqn{eslls}{\minimizeover{s \in \tinyRe^n} \half \| A (\xck + s) - b\|^2
+\; \mbox{subject to} \; e^T s = 0 \; \mbox{and} \; s_{\calA(\xck)} = 0.
+}
+Otherwise define the next iterate $x_{k+1} = \xck$ and go to Step 5.
+
+\item[Step 4: Find the next iterate.]
+Find a stepsize $\alpha_k>0$ that reduces
+$f(P(\xck + \alpha s_k))$, and define the next iterate
+$x_{k+1} = P(x_k + \alpha_k s_k)$.
+
+\item[Step 5: Perform the next iteration.]
+Increase $k$ by 1 and go to Step 1.
+\end{description}
+}
+
+A few comments are in order. Firstly, in Steps 2 and 4 we need to consider
+the least-squares objective function $f(x)$ along a piecewise arc
+$x(\alpha;x,v) = P(x + \alpha v)$ emanating from a feasible point $x$
+in the direction $v$ but bent so as to remain feasible with respect to
+$\Delta^n$. We consider this further in due course. We have not specified
+what ``approximate'' means here, but two possibilities are either to find
+the exact minimizer along the arc, or to find a point that gives
+``sufficient'' decrease to guarantee convergence.
+
+Secondly, it is trivial to find the required Cauchy direction in 
+\req{cauchydir}. For the problem in question is clearly a linear
+program, and as the feasible set is bounded, its solution must occur 
+at a vertex, that is a point
+at which $n-1$ of the bounds $s \geq x_k$ are satisfied as equalities.
+Suppose that variable $i$ is the exception. Then
+\eqn{defs}{ s_j = - x_{j,k} \tim{for} j \neq i \tim{and} s_i = 1 - x_{i,k}}
+since $x_k \in \Delta^n$ and $e^T s = 0$. Hence, for this $s$, the objective
+\disp{g_k^T s = \sum_{j=1}^n g_{j,k} s_j = - \sum_{j=1}^n g_{j,k} x_{k,j} + g_{i,k}}
+using \req{defs}. The smallest value of $g_k^T s$ over all such vertices
+then occurs for the index (perhaps indices) for which $g_{i,k}$ is smallest,
+and we use such an $i$ with \req{defs} to define $\sck$.
+
+Thirdly, notice that Steps 3 and 4 are optional; the algorithm is
+guaranteed to converge without them, but almost always moving beyond the
+Cauchy point improves performance. From a theoretical perspective,
+the Cauchy point plays two roles, it guarantees convergence and in
+non-degenerate cases it also ultimately predicts the optimal face on
+the unit simplex. Once this happens, the exact solution
+$\xck + s_k$ from \req{eslls} will also be that of \req{slls},
+and $\alpha_k = 1$ will result from Step 4. Steps 3 and 4 might be skipped if,
+for example, the set $\calA(\xck)$ differs significantly from its
+immediate predecessor.
+
+Finally, the equality-constrained linear least-squares problem \req{eslls}
+may be written more compactly as
+\eqn{ceslls}{\minimizeover{s_{\calI_k}} \half
+ \| A_{\calI_k} s_{\calI_k} - ( b - A \xck) \|^2
+\; \mbox{subject to} \; e^T s_{\calI_k} = 0}
+to determine the ``free'' components $s_{\calI_k}$ of $s$, where
+$\calI_k = \calN \setminus \calA(\xck)$. That is, it only involves
+the ``free'' columns $ A_{\calI_k}$ of $A$. To solve a generic singly-constrained
+linear least-squares problem
+\eqn{sells}{\minimizeover{s \in \tinyRe^n} m(s) \define
+ \half \| A s - b \|^2 \; \mbox{subject to}\; e^T s = 0}
+at least two possibilities are available.
+
+The first is to note that the solution
+to \req{sells} must satisfy the optimality conditions
+\disp{A^T ( A s - b ) + \lambda e = 0 \; \mbox{and} \; e^T s = 0}
+for some scalar Lagrange multiplier $\lambda$. This then leads to the
+linear system
+\disp{ \mat{cc}{A^T A & e \\ e^T & 0 } \vect{s \\ \lambda} = \vect{ A^T b \\ 0}}
+or, on defining $r = b - A s$, the expanded system
+\disp{ \mat{ccc}{I & A & 0 \\ A^T & 0 & e  \\ 0 & e^T & 0 }
+ \vect{r \\ s \\ \lambda} = \vect{ b \\ 0 \\ 0}.}
+or even its solution via
+\disp{\vect{ r \\ s } = \vect{ p \\ q } - \lambda \vect{ u \\ v },
+\;\mbox{where} \mat{cc}{I & A \\ A^T & 0} \mat{cc}{p & u \\ q & v }
+  = \mat{cc}{ b & 0 \\ 0 & e } \;\mbox{and}\; \lambda = \frac{q^T e}{v^T e}.}
+Since we are primarily only interested in the $s$ component of the
+solution, the latter may be rewritten as
+\eqn{nells}{s = q - \lambda v, \;\mbox{where}\; A^T A q = A^T b, \;
+ A^T A v = - e \;\mbox{and}\; \lambda = \frac{q^T e}{v^T e}.}
+Each of the above systems may be solved using symmetric, indefinite
+factorization, and in the special case \req{nells}, Cholesky factorization
+of $A^T A$ suffices.
+
+A second possibility is to solve---possibly approximately---the problem
+using an iterative method. Standard techniques such as the preconditioned
+conjugate-gradient normal equation (CGNE) method may be applied so long
+as the preconditioning step respects the single linear constraint. That is,
+given a gradient $g_k$ of $m(s)$ at CGNE iterate $s_k$, the required slope
+$g_k^T v_k$ is computed to satisfy
+\eqn{pcg}{ \mat{cc}{ P & e \\ e^T & 0 } \vect{v_k \\ \mu_k} = \vect{g_k \\ 0}}
+for some suitable symmetric approximation $P$ to $A^T A$. 
+This is a special case of the projected conjugate gradient method
+\cite{GoulHribNoce01:sisc} applied to \req{sells}, and here as
+in \cite[\S5]{GoulHribNoce01:sisc} it is very important to perform at
+least one iterative refinement per solve \req{pcg} to ensure that the projected
+conjugate gradient iterates do not deviate significantly from the 
+manifold $e^T s_{\calI_k} = 0$. Of course the solution to \req{pcg} may be
+expressed formally as
+\disp{ v_k = P^{-1} g_k - \mu_k P^{-1} e, \;\;\mbox{where}\;\; \mu_k = 
+ \frac{e^T P^{-1} g_k}{e^T e}}
+which is useful if $P$ has a simple form, e.g., if $P$ is diagonal with
+$P = $ diag$(A^T A)$ being a common, often effective \cite{GoulScot17:toms}
+option. Constrained variants of other specialised iterative least-squares 
+methods such as LSQR \cite{PaigSaun82a:toms},
+LSMR \cite{FongSaun11:sisc} or LSLQ \cite{EstrOrbaSaun19:simaa}
+may be preferred. 
+
+
+\subsection{Projections onto the unit simplex and projection arcs}
+
+\subsubsection{Projections onto the unit simplex}
+
+Given the vector $v$, we let $v_{(i)}$, $i = 1,\ldots,n$,
+be the value of its $i$-th largest component.
+The basic $O(n\log n)$ method for finding the projection $P(v)$ is due to
+\cite{HeldWolfCrow74:mp}, and has been improved over the
+years, see \cite{Cond16:mp,DaiChen22,BergFrie08:sisc} and the citations within.
+A typically efficient method is as follows:
+\newpage
+
+%% \algo{alg-proj-basic}{projection onto the unit simplex
+%% \cite{HeldWolfCrow74:mp}}{
+%% \begin{enumerate}
+%% \item Sort $v$ so that $v_{(1)} \geq v_{(2)} \geq \ldots \geq v_{(n)}$.
+
+%% \item Define
+%% \disp{j_{\max} \define \max_{1 \leq j \leq n}
+%%  \left\{ j \st \left( \bigsum_{i=1}^j v_{(i)} - 1\right) / j < v_{(j)} \right\}.}
+
+%% \item Define
+%% \disp{\tau \define \left(\bigsum_{j=1}^{j_{\max}} v_{(j)} - 1\right)/j_{\max}.}
+
+%% \item Set $P(v)_i \define \max [v_i - \tau ,0]$ for $i = 1, \ldots ,n$.
+%% \end{enumerate}
+%% }
+
+%% The quicksort algorithm is frequently recommended in step 1 of Algorithm 1.
+%% However, all that is actually needed is the largest entry of the
+%% unsorted set of components, and for this the heapsort algorithm is
+%% often preferred.
+
+\algo{alg-proj-heap}{projection onto the unit simplex via heapsort
+\cite{BergFrie08:sisc}}{
+\begin{enumerate}
+\item Build a heap $\calH$ with largest entry $h$ from the components of $v$.
+\item For j = 1,\ldots,n, do
+
+\begin{enumerate}
+\item Set $v_{(j)} \define h$.
+
+\item If \disp{\left(\bigsum_{i=1}^j v_{(i)} - 1\right)/j \geq v_{(j)},}
+exit the loop.
+
+\item Set $j_{\max} \define j$.
+
+\item Remove $h$ from $\calH$, and restore the heap $\calH$ with new
+largest entry $h$
+\end{enumerate}
+
+\item Define
+\disp{\tau \define \left(\bigsum_{j=1}^{j_{\max}} v_{(j)} - 1\right)/j_{\max}.}
+
+\item Set $P(v)_i \define \max [v_i - \tau ,0]$ for $i = 1, \ldots ,n$.
+\end{enumerate}
+}
+
+\noindent
+Such a method is based on satisfying the optimality conditions for the
+projection problem
+\disp{P(v) = \!\! \argminover{p \in \Delta^n} \half \| p - v\|^2}
+by the constructive finite iteration in Step 2.
+
+\subsubsection{Projection arcs}
+
+We next consider the arc $P(x+\alpha d)$ from a given $x \in \Delta^n$ in
+the generic direction $d$ for positive $\alpha$. Since $x$ lies within
+$\Delta^n$,  the arc will be piecewise linear as $\alpha$ increases,
+and will change direction whenever
+one (or more) of its components shrinks to zero (and is fixed thereafter).
+We refer to the points at which the direction changes as {\em breakpoints},
+and the vectors that join adjacent breakpoints as {\em segments}.
+
+Suppose that $v$ is such a breakpoint, and that $\calA \define \calA(v)$
+is as in \req{active-set}. Then the next segment $s$ is in the direction
+\disp{\argminover{s \in \tinyRe^n} \half\|s-d\|^2 \;\mbox{subject to} \;
+ e^T s = 0 \; \mbox{and}\; s_{\calA} = 0,}
+for which the necessary optimality conditions
+\disp{ s_{\calI} - d_{\calI} + \lambda e_{\calI} = 0,\;  e_{\calI}^T s_{\calI} = 0,
+\, \mbox{and}\; s_{\calA} = 0}
+give that $s$ has components
+\eqn{s}{s_{\calI} = d_{\calI} - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}}e_{\calI}
+ \;\;\mbox{and}\; s_{\calA} = 0}
+where $\calI \define \calN \setminus \calA$.
+
+Now suppose that at the next breakpoint $v^+$ variable $i$ reaches zero,
+and thus that $\calI^+ = \calI \setminus \{i\}$. It then follows from \req{s}
+that the new segment $s^+$ emanating from $x^+$ satisfies
+\eqn{splus}{s^+_{\calI^+} = d_{\calI^+}
+ - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}e_{\calI^+}
+\; \;\mbox{and}\; s_{\calA^+} = 0.}
+In particular, if $j \in \calI^+ \subset \calI$,  it follows from
+\req{s} and \req{splus} that
+\disp{s_j = d_j - \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}} \;\mbox{and}\;
+ s^+_j = d_j - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}}
+and particularly that
+\eqn{diffs}{s^+_j = s_j + \gamma_i, \;\mbox{where}\;
+\gamma_i = \frac{e_{\calI}^T d_{\calI}}{e_{\calI}^T e_{\calI}}
+ - \frac{e_{\calI^+}^T d_{\calI^+}}{e_{\calI^+}^T e_{\calI^+}}
+= \frac{e_{\calI}^T d_{\calI}}{ |\calI|}
+ - \frac{e_{\calI}^T d_{\calI} - d_i}{ |\calI|- 1}
+= \frac{|\calI| d_i - e_{\calI}^T d_{\calI}}{|\calI|(|\calI|- 1)}
+}
+since $e_{\calI^+}^T e_{\calI^+} = |\calI^+| = |\calI|- 1 = e_{\calI}^T e_{\calI} -1$
+and
+$e_{\calI^+}^T d_{\calI^+} = e_{\calI}^T d_{\calI} - d_i$. Thus each nonzero
+component of the new segment is that of the old segment shifted by
+{\em the same} $\gamma_i$. We may also use the relationships
+$e_{\calI}^T s_{\calI} = 0 = e_{\calI^+}^T s^+_{\calI^+}$ together with \req{diffs} to
+deduce that
+\disp{0 = \sum_{j \in \calI^+} s^+_j = \sum_{j \in \calI^+} ( s_j  + \gamma_i ) =
+\sum_{j \in \calI} s_j  - s_i + \gamma_i |\calI^+| =
+- s_i + \gamma_i |\calI^+|
+}
+and thus we have the alternative definition
+\disp{\gamma_i  = \frac{s_i}{|\calI^+|}.}
+Since $v_i + \alpha s_i = 0$, and $v_i > 0$, and $\alpha > 0$, we must have
+that $s_i < 0$ and consequently $\gamma_i < 0$. Hence the nonzero components
+of successive segments decrease; those that start negative stay so, while
+those that are initially positive move towards negativity.
+
+We calculate breakpoints by examining the segment $s$ emanating from $v$
+and picking $v^+ = v + t s$, where
+\disp{\tmin = \min_{s_j<0} t_j, \; \mbox{where}\; t_j = - v_j/s_j.}
+By definition of $i$, we have $s_i < 0$ and $\tmin = t_i = - v_i/s_i$.
+Now suppose that $s_j < 0$ for component $j \neq i$. Then, as in the
+previous paragraph, $s_j^+ = s_j + \gamma_i$, and hence $s_j^+ < 0$.
+Moreover
+\disp{t_j^+ - t_j = - \frac{v_j + ts_j}{s_j + \gamma_i} + \frac{v_j}{s_j}
+= \frac{v_j s_i^2 / |\calI^+| + v_i s_j^2}{ s_j^+ s_i s_j} < 0}
+since the numerator is positive and the denominator negative,
+and hence $t_j^+ < t_j$. It might be tempting to hope that if
+$\tmin \leq t_j < t_k$ for some pair $j,k \neq i$ then $t^+_j < t^+_k$.
+For if this were so, it would be possible to sort the indices at the
+beginning of the arc, and thereafter pick breakpoints sequentially
+according to their sorted order;
+this is one of the keys to efficiency in similar methods for the
+simpler box-shaped feasible domain $l \leq x \leq u$
+\cite[\S17.3]{ConnGoulToin00}.
+Unfortunately, this is not the case as the following example shows.
+
+Consider the value $v = (0.01, 0.01, 0.05, 0.93) \in \Delta^4$, and the
+direction $s = d = (-10,-1,-10,21)$ for which $e^T s = 0$. Then
+$\tmin = t_1 = 0.001 < t_3 = 0.005 <  t_2 = 0.01$, and hence $t = 0.001$, giving
+$v^+ = (0, 0.009,0.04,0.951)$,
+$s^+ = (0. -4.3333, -13.3333, 17.6667)$ and
+$\tmin^+ = t^+_2 = 0.0020769 < t^+_3 = 0.003$. Thus it seems likely that it is
+necessary to sort indices at each breakpoint when decoding where the
+next segment ends---in practice, we have observed that it is
+common for the order to be retained, and so the lack of a guarantee is
+regrettable.
+
+
+%\disp{\arr{rl}{t_j^+ - t_k^+ \ngap & =
+% \bigfrac{v_k + t s_k}{s_k + \gamma_i} - \bigfrac{v_j + t s_j}{s_j +\gamma_i}\\
+% & = \bigfrac{(t-t_k) s_k}{s_k + \gamma_i}
+%      - \bigfrac{(t-t_j) s_j}{s_j + \gamma_i} \\
+%}}
+%by definition of $t_j$ and $t_k$, the bound $t_j - t < t_k - t$
+
+\subsubsection{Objective function evolution along a projection arc}
+
+Our next goal is to consider the evolution of the objective function
+\disp{f(P(x+\alpha d)) = \half \| A P(x+\alpha d) -b\|^2} as $\alpha$
+increases from 0 from $x \in \Delta^n$ in the segment direction $d$.
+As we have already seen, we may break the arc $P(x+td)$ into pieces,
+as we shall consider $v+t s$ from the breakpoint $v$ along the segment
+$s$ for $t \geq 0$. Thus, we are concerned with the convex quadratic
+\disp{f(v+ts) = \half \|r\|^2 + t f^{\prime} + \half t^2 f^{\prime\prime},
+ \;\mbox{where}\; r \define A v - b, \; p \define A s, \;
+f^{\prime} \define r^T p \;\mbox{and}\;
+ f^{\prime\prime} \define \|p\|^2.}
+There are clearly three possibilities. It might be that $v$ is a (local)
+minimizer of $f$ along the arc; this will happen if $f^{\prime} \geq 0$.
+If this is not the case, either we may move to the end of the segment
+as $f(v+ts)$ continues to decrease, or we encounter a local minimizer
+en route. The latter occurs when
+\disp{t_{\mbox{\scriptsize opt}} \define - f^{\prime} / f^{\prime\prime} \leq \tmin.}
+Naively, one might simply evaluate these three possibilities by computing
+the product $p = As$ required by $f^{\prime}$ and $f^{\prime\prime}$. However, it is
+more efficient to recur the required quantities as the arc search proceeds.
+
+Suppose that the search continues to the next breakpoint, $v^+$, and that
+variable $i$ is reduced to zero, i.e., $\calI^+ = \calI \setminus \{i\}$.
+Recall from \req{s} that
+\disp{p = A s = A_{\calI} s_{\calI} = A_{\calI^+} s_{\calI^+} + a_i s_i,}
+where $a_i$ is the $i$-th column of $A$,
+and from \req{diffs} that
+\disp{p^+ = A s^+ = A_{\calI^+} s^+_{\calI^+}
+ = A_{\calI^+} ( s_{\calI^+} + \gamma_i e_{\calI^+}),}
+and hence that
+\disp{p^+ = p + \gamma_i A_{\calI^+} e_{\calI^+} - s_i a_i.}
+But if $w \define  A_{\calI} e_{\calI}$, we may recur
+\eqn{w}{w^+ = A_{\calI^+} e_{\calI^+} = A_{\calI} e_{\calI} - a_i = w - a_i}
+and subsequently
+\eqn{p}{p^+ = p + \gamma_i w^+ - s_i a_i.}
+Crucially, both recurrences simply need access to a single---possibly
+ sparse---column of $A$. In addition, we may recur
+\eqn{r}{r^+ = A v^+ - b = A ( v + \tmin s ) - b = r + \tmin p}
+and calculate
+\eqn{primes}{\half \|r^+\|^2 = \half \|r\|^2 + \tmin  f^{\prime} +
+ \half \tmin^2 f^{\prime\prime}, \;
+f^{\prime +} = r^{+ T} p^+ \;\mbox{and}\;
+ f^{\prime\prime +} = \|p^+\|^2.}
+The main work involved are the two potentially-sparse and two dense vector
+additions in \req{w}--\req{r}, and two inner products in \req{primes},
+and avoids a more costly matrix-vector product $As$. This is less efficient
+than projected search when the feasible region is a box, but this appears
+to be inevitable because of the complicating constraint $e^T x = 1$.
+
+Another possibility is to aim for a value along the arc that provides
+sufficient decrease of $f(P(x+\alpha d))$ to ensure convergence rather than
+for the minimizer.
+Such a possibility has been examined in more general contexts using
+Goldstein-like conditions \cite[\S12.2]{ConnGoulToin00}, but we prefer a
+slightly simpler Armijo version such as that in \cite{Sart93b}. Essentially,
+given an initial estimate $\alpha_0$ of the optimal step length $\alpha$,
+$f(P(x+\alpha d))$ is computed for a sequence of decreasing values
+$\alpha_k = \alpha_0 \beta^k$, $k \geq 0$ with $\beta \in (0,1)$,
+and the search terminated at the first $k$ for which
+\eqn{suffdec}{f(P(x+\alpha_k d)) \leq f(x) + \eta
+ (\nabla_x f(x) )^T ( P(x+\alpha_k d) - x )}
+for given (typically small) $\eta \in (0,1)$.
+If we write $s_k = P(x+\alpha_k d) - x$ and $r_k = A P(x+\alpha_k d) -b$,
+then $r_k = r + A s_k$, where we recall that $r = A x - b$.
+Hence we may rewrite \req{suffdec} as
+\disp{\frac{1}{2} r_k^T r_k \leq \frac{1}{2} r^T r + \eta (r^T r_k - r^T r ).}
+Thus each $k$ requires the computation of a projection $P(x+\alpha_k d)$,
+a matrix-vector product $As_k$ and a pair of new inner products
+$r^T r_k$ and $r_k^T r_k$. How this compares to the earlier, exact method
+depends entirely on the choice of $\alpha_0$, and a good choice isn't obvious.
+Indeed, a large initial $t_0$ may result in a wasteful sequence of identical
+evaluation points $P(x+\alpha_k d)$.
+
+
+%Questions still to answer:
+%\begin{enumerate}
+%\item is it possible to compute the next breakpoint without another complete
+%ordering of $-v_i/s_i$ (= distances to boundary of simplex)? False.
+
+%\item can we compute $f(P(x+\alpha v))$ efficiently? Without recomputing
+%everything at each breakpoint as the arc direction changes?
+
+%\end{enumerate}
+%I suspect that the special update \req{diffs} may be crucial here for both
+%questions.
+
+\bibliographystyle{plain}
+%\input{/home/nimg/pCloudDrive/papers/refs/refs}
+\bibliography{g24}
+
+\end{document}

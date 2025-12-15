@@ -22,7 +22,7 @@
 \newcommand{\xck}{x\s{C}_k}
 \newcommand{\sck}{s\s{C}_k}
 \newcommand{\xs}{x\sub{S}}
-\newcommand{\ns}{n\sub{S}}
+\renewcommand{\ms}{m\sub{S}}
 \newcommand{\xsj}{x\sub{S}{}_j}
 \newcommand{\xsi}{x\sub{S}{}_i}
 \renewcommand{\half}{\frac{1}{2}}
@@ -591,25 +591,38 @@ Thus it is trivial to update $\rho$ and its derivatives using
 \label{section-mslls}
 
 A more general problem concerns the minimization of $f(x)$ from \req{slls}
-over the intersection of $\ns \geq 1$ non-overlapping unit simplices,
-\eqn{si}{\Delta_j^{n_j} \define
- \{ x \st \sum_{i \in \calI_j} x_i = 1, \; x_i \geq 0, \; i \in \calI_j\}, \;\;
- j = 1, \ldots, \ns,}
-where
-\eqn{is}{\bigcup_{j=1}^{\ns} \calI_j \subseteq \calN \tim{and}
-\calI_{j_1} \cap \calI_{j_2} = \emptyset \tim{for} 1 \leq j_1 < j_2 \leq \ns.}
-This allows the possibility that some variable $x_i$ are not constrained to
+over the intersection $\calF = \cap_{i=1}^{\ms} \Delta_i^{n_i}$
+of $\ms \geq 1$ non-overlapping unit simplices,
+\eqn{si}{\Delta_i^{n_i} \define
+ \{ x \st \sum_{j \in \calI_i} x_j = 1, \; x_j \geq 0, \; j \in \calI_i\}, \;\;
+ i = 1, \ldots, \ms,}
+where $n_i = |\calI_i|$ and 
+\eqn{is}{\bigcup_{i=1}^{\ms} \calI_i \subseteq \calN \tim{and}
+\calI_{i_1} \cap \calI_{i_2} = \emptyset \tim{for} 1 \leq i_1 < i_2 \leq \ms.}
+This allows the possibility that some variable $x_j$ are not constrained to
 lie within any of the simplices, and we denote the indices of these
-by $\calI_0 \define \calN \setminus \cup_{j=1}^{\ns} \calI_j$.
+by $\calI_0 \define \calN \setminus \cup_{i=1}^{\ms} \calI_i$.
 The problem is of interest as this
 is precisely the case for small-angle scattering applications with
-$\ns$ distinct sets of polydisperse parameters, plus a pair of unconstrained 
+$\ms$ distinct sets of polydisperse parameters, plus a pair of unconstrained 
 scaling parameters \cite{LengKingSnowRogeMarkMaheThiy22}. The crucial 
 observation is that projection into the feasible region \req{si} under
 the restriction \req{is} is no harder that for the single simplex case,
-the projection may be found block-componentwise according to the index sets
-$\calI_j$ (and the projection for any unconstrained variables trivially leaves
-them alone).
+the projection may be found block-componentwise according to the 
+disjoint index sets $\calI_j$ (and the projection for any unconstrained 
+variables trivially leaves them alone).
+
+For any $v \in \Re^n$, let $v_{[i]} \in\Re^n$ be the vector whose $j$-th 
+component is $v_j$ if $j \in \calI_i$, and zero otherwise, for each 
+$j = 1, \ldots, \ms$. That is, the simplex $\Delta_i^{n_i}$ in \req{si}
+may be written equally as
+\[
+ \{ x \st e^T_{\calI_i} x_{\calI_i} = 1, \; x_{\calI_i} \geq 0 \} \tim{or}
+ \{ x \st e^T_{[i]} x_{[i]} = 1, \; x_{[i]} \geq 0 \}.
+\]
+Furthermore let $E$ be the $\ms$ by $n$ matrix whose $i$-th row is 
+$e^T_{[i]}$, $i = 1, \ldots, \ms$, and notice that the rows of $E$ are pairwise 
+orthogonal since the $\calI_i$ are disjoint.
 
 \section*{Availability}
 
